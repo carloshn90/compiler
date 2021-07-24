@@ -1,14 +1,19 @@
 package org.compiler.example
 package lexer
 
+
+import error.ErrorCompiler
+
+import scala.annotation.tailrec
+
 class Scanner(implicit keywords: Map[String, TokenType]) {
 
-  type TokenListResult = Either[String, List[Token]]
-  type SourceTokenListResult = Either[String, (List[Char], List[Token])]
+  type TokenListResult = Either[ErrorCompiler, List[Token]]
+  type SourceTokenListResult = Either[ErrorCompiler, (List[Char], List[Token])]
 
   def scanTokens(source: List[Char]): TokenListResult = scanToken(source, List())
 
-  def scanToken(source: List[Char], tokenList: List[Token])(implicit line: Int = 1): TokenListResult = source match {
+  private def scanToken(source: List[Char], tokenList: List[Token])(implicit line: Int = 1): TokenListResult = source match {
     case List()                 => Right(addNewToken(tokenList, EOF))
     case '\n'::tail             => scanToken(tail, tokenList)(line + 1)
     case '('::tail              => scanToken(tail, addNewToken(tokenList, LEFT_PAREN))
@@ -36,35 +41,44 @@ class Scanner(implicit keywords: Map[String, TokenType]) {
     case _                      => addGenericToken(source, tokenList).flatMap((scanToken _).tupled)
   }
 
-  def addNewToken(tokenList: List[Token], tokenType: TokenType)(implicit line: Int): List[Token] =
+  private def addNewToken(tokenList: List[Token], tokenType: TokenType)(implicit line: Int): List[Token] =
     tokenList :+ Token(tokenType, tokenType.lexeme, line)
 
-  def addStringToken(source: List[Char], tokenList: List[Token], value: String = "")
-                    (implicit line: Int): SourceTokenListResult = source match {
-    case List()     => Left(s"Error in line: $line. Unterminated String.")
-    case '\n'::_    => Left(s"Error in line: $line. The String have to be defined in one line.")
-    case '"'::tail  => Right(tail, tokenList :+ Token(STRING, value, line))
+  @tailrec
+  private def addStringToken(source: List[Char], tokenList: List[Token], value: String = "")
+                            (implicit line: Int): SourceTokenListResult = source match {
+    case List()     => Left(ErrorCompiler(line, "Unterminated String."))
+    case '\n'::_    => Left(ErrorCompiler(line, "The String have to be defined in one line."))
+    case '"'::tail  => Right(tail, tokenList :+ Token(STRING, value, line, Some(value)))
     case head::tail => addStringToken(tail, tokenList, value + head)
   }
 
-  def addGenericToken(source: List[Char], tokenList: List[Token], value: String = "")
-                     (implicit line: Int): SourceTokenListResult = {
-    val numeric       = """([0-9]+)""".r
+  @tailrec
+  private def addGenericToken(source: List[Char], tokenList: List[Token], value: String = "")
+                             (implicit line: Int): SourceTokenListResult = {
+    val numeric         = """([0-9]+)""".r
+    val isReservedChar  = """([\n(){},.\-+;*!=<>/ \r\t"])""".r
     source match {
-      case List()                               => Right(List(), tokenList :+ createTokenFromString(value))
+      case List()                               => createStringToken(value).map(token => (List(), tokenList :+ token))
       case '.'::tail if numeric.matches(value)  => addGenericToken(tail, tokenList, value + '.')
-      case (' '|'\n'|'.'|';'|')'|'(')::_        => Right(source, tokenList :+ createTokenFromString(value))
+      case isReservedChar(_)::_                 => createStringToken(value).map(token => (source, tokenList :+ token))
       case head::tail                           => addGenericToken(tail, tokenList, value + head)
     }
   }
 
-  def createTokenFromString(value: String)(implicit line: Int): Token = try {
-    Token(NUMBER, value.toDouble.toString, line)
+  private def createStringToken(value: String)(implicit line: Int): Either[ErrorCompiler, Token] = try {
+    Right(Token(NUMBER, value, line, Some(value.toDouble)))
   } catch {
-    case _: Throwable => Token(keywords.getOrElse(value, IDENTIFIER), value, line)
+    case _: Throwable => createIdentifierToken(value)
   }
 
-  def removeComment(source: List[Char]): List[Char] = source match {
+  private def createIdentifierToken(identifier: String)(implicit line: Int): Either[ErrorCompiler, Token] =
+    if (identifier.head.isDigit) Left(ErrorCompiler(line, "Identifier can't start with a number."))
+    else Right(Token(keywords.getOrElse(identifier, IDENTIFIER), identifier, line))
+
+  @tailrec
+  private def removeComment(source: List[Char]): List[Char] = source match {
+    case List()     => source
     case '\n'::tail => tail
     case _::tail    => removeComment(tail)
   }

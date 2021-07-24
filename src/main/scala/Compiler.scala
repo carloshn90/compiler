@@ -2,6 +2,8 @@ package org.compiler.example
 
 import lexer.{Scanner, Token, TokenType}
 
+import error.ErrorCompiler
+
 object Compiler extends App {
 
   runFile("/Users/carlos/Documents/java/jlox/src/main/resources/main.jlox")
@@ -13,7 +15,7 @@ object Compiler extends App {
 
     implicit val keywords: Map[String, TokenType] = TokenType.getKeywords
     val scanner: Scanner = new Scanner()
-    val tokenList: Either[String, List[Token]] = scanner.scanTokens(fileContent.toList)
+    val tokenList: Either[ErrorCompiler, List[Token]] = scanner.scanTokens(fileContent.toList)
 
     println(tokenList.map(list => list.mkString("\n")))
 
