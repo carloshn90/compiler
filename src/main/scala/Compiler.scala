@@ -1,8 +1,9 @@
 package org.compiler.example
 
-import lexer.{Scanner, Token, TokenType}
-
 import error.ErrorCompiler
+import interpreter.Interpreter
+import lexer.{Scanner, Token, TokenType}
+import parser.Parser
 
 object Compiler extends App {
 
@@ -15,9 +16,15 @@ object Compiler extends App {
 
     implicit val keywords: Map[String, TokenType] = TokenType.getKeywords
     val scanner: Scanner = new Scanner()
+    val parser: Parser = new Parser()
+    val interpreter: Interpreter = new Interpreter()
     val tokenList: Either[ErrorCompiler, List[Token]] = scanner.scanTokens(fileContent.toList)
 
-    println(tokenList.map(list => list.mkString("\n")))
+    val expr: Either[ErrorCompiler, String] = tokenList
+      .map(parser.parser())
+      .flatMap(_._1)
+      .flatMap(interpreter.interpreter)
 
+    println(expr)
   }
 }
