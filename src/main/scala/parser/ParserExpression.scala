@@ -41,12 +41,15 @@ object ParserExpression {
 
     val (expr, exprTokenList) = f()(tokenList.tail)
 
-    if (exprTokenList.head.tokenType == RIGHT_PAREN) unit(expr.map(e => Grouping(e)))(exprTokenList)
+    if (exprTokenList.head.tokenType == RIGHT_PAREN) unit(expr.map(e => Grouping(e)))(exprTokenList.tail)
     else unit(Left(ErrorCompiler(tokenList.head.line, s"Expect ')' after expression '${tokenList.head.lexeme}''")))(exprTokenList)
   }
 
   def parserLiteral[A](value: A): ParserExpr = tokenList =>
     unit(Right(Literal(value)))(tokenList.tail)
+
+  def parserVariable(): ParserExpr = tokenList =>
+    unit(Right(Variable(tokenList.head)))(tokenList.tail)
 
   @tailrec
   private def matchType(types: Seq[TokenType], token: Token): Boolean = types match {

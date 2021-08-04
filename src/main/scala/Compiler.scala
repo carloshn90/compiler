@@ -1,13 +1,13 @@
 package org.compiler.example
 
 import error.ErrorCompiler
-import interpreter.Interpreter
+import interpreter.{Environment, Interpreter}
 import lexer.{Scanner, Token, TokenType}
-import parser.Parser
+import parser.{Parser, Stmt}
 
 object Compiler extends App {
 
-  runFile("/Users/carlos/Documents/java/jlox/src/main/resources/main.jlox")
+  runFile("/Users/carlos/Documents/Scala/compilator/src/main/resources/main.cehn")
 
   def runFile(source: String): Unit = {
 
@@ -20,11 +20,10 @@ object Compiler extends App {
     val interpreter: Interpreter = new Interpreter()
     val tokenList: Either[ErrorCompiler, List[Token]] = scanner.scanTokens(fileContent.toList)
 
-    val expr: Either[ErrorCompiler, String] = tokenList
-      .map(parser.parser())
-      .flatMap(_._1)
-      .flatMap(interpreter.interpreter)
+    val expr: Either[ErrorCompiler, Unit] = tokenList
+      .flatMap(parser.parser())
+      .flatMap((stmtList: List[Stmt]) => interpreter.interpreter(stmtList)(new Environment)._1)
 
-    println(expr)
+    if (expr.isLeft) println(expr.left)
   }
 }

@@ -3,12 +3,38 @@ package parser
 
 import lexer._
 import parser.ParserExpression._
+import parser.ParserStatement.{ParserResult, ParserStmt, parserStmt, parserVarDecl}
+import util.Applicative.eitherApplicative
 
 /**
  * <table border="0">
  *   <tr>
+ *     <td>program</td>
+ *     <td>→ statement* EOF ;</td>
+ *   </tr>
+ *   <tr>
+ *     <td>declaration</td>
+ *     <td>→ varDecl | statement ;</td>
+ *   </tr>
+ *   <tr>
+ *     <td>varDecl</td>
+ *     <td>→ "var" IDENTIFIER ( "=" expression )? ";" ;</td>
+ *   </tr>
+ *   <tr>
+ *     <td>statement</td>
+ *     <td>→ exprStmt | printStmt ;</td>
+ *   </tr>
+ *   <tr>
+ *     <td>exprStmt</td>
+ *     <td>→ expression ";" ;</td>
+ *   </tr>
+ *   <tr>
+ *     <td>printStmt</td>
+ *     <td>→ "print" expression ";" ;</td>
+ *   </tr>
+ *   <tr>
  *     <td>expression</td>
- *     <td>→ equality</td>
+ *     <td>→ equality;</td>
  *   </tr>
  *   <tr>
  *     <td>equality</td>
@@ -32,13 +58,56 @@ import parser.ParserExpression._
  *   </tr>
  *   <tr>
  *     <td>primary</td>
- *     <td>→ NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;</td>
+ *     <td>→ NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;</td>
  *   </tr>
  * </table>
  */
 class Parser {
 
-  def parser(): ParserExpr = expression()
+  def parser(parserStmtList: List[ParserStmt] = List()): ParserResult = tokenList => {
+
+    val currentToken = tokenList.head
+
+    if (currentToken.tokenType != EOF) {
+      val (stmt, leftTokenList) = declaration()(tokenList)
+      parser(parserStmtList :+ ParserStatement.unit(stmt))(leftTokenList)
+    } else
+      eitherApplicative.sequence(parserStmtList.map(a => a(tokenList)._1))
+  }
+
+  /**
+   * declaration → varDecl | statement ;
+   */
+  def declaration(): ParserStmt = {
+    case tokenList@Token(VAR, _, _, _)::_ => varDecl()(tokenList)
+    case tokenList@_::_                   => statement()(tokenList)
+  }
+
+  /**
+   * varDecl → "var" IDENTIFIER ( "=" expression )? ";" ;
+   */
+  def varDecl(): ParserStmt =
+    parserVarDecl(expression())
+
+  /**
+   * statement → exprStmt | printStmt;
+   */
+  def statement(): ParserStmt = {
+    case tokenList@Token(PRINT, _, _, _)::_ => printStmt()(tokenList)
+    case tokenList@_::_                     => exprStmt()(tokenList)
+  }
+
+  /**
+   * printStmt → "print" expression ";" ;
+   */
+  def printStmt(): ParserStmt =
+    parserStmt(expression())(expr => Print(expr))
+
+  /**
+   * exprStmt → expression ";";
+   */
+  def exprStmt(): ParserStmt =
+    parserStmt(expression())(expr => Expression(expr))
 
   /**
    * expression → equality
@@ -76,7 +145,7 @@ class Parser {
     parserUnary(Seq(BANG, MINUS))(unary, primary)
 
   /**
-   * primary → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;
+   * primary → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
    */
   private def primary(): ParserExpr = {
    case tokenList@Token(FALSE, _, _, _)::_        => parserLiteral(false)(tokenList)
@@ -85,5 +154,6 @@ class Parser {
    case tokenList@Token(NUMBER, _, _, literal)::_ => parserLiteral(literal.get)(tokenList)
    case tokenList@Token(STRING, _, _, literal)::_ => parserLiteral(literal.get)(tokenList)
    case tokenList@Token(LEFT_PAREN, _, _, _)::_   => parserGrouping()(expression)(tokenList)
+   case tokenList@Token(IDENTIFIER, _, _, _)::_   => parserVariable()(tokenList)
   }
 }

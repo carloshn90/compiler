@@ -1,27 +1,26 @@
 package org.compiler.example
 package interpreter
 
-import interpreter.Int.InterResult
-
 import error.ErrorCompiler
+import interpreter.InterpreterResult.{unit, InterResult, InterResultMonad}
 
 object MathExpr {
 
-  def mathExpr(left: InterResult, right: InterResult)
-              (f: (Double, Double) => Double)(implicit line: Int): InterResult =
+  def mathExpr(left: InterResult[Any], right: InterResult[Any])
+              (f: (Double, Double) => Double)(implicit line: Int): InterResult[Any] =
     calculateBinaryExpr[Double, Double](left, right)(f)
 
-  def logicExpr(left: InterResult, right: InterResult)
-               (f: (Double, Double) => Boolean)(implicit line: Int): InterResult =
+  def logicExpr(left: InterResult[Any], right: InterResult[Any])
+               (f: (Double, Double) => Boolean)(implicit line: Int): InterResult[Any] =
     calculateBinaryExpr[Double, Boolean](left, right)(f)
 
-  def addExpr(left: InterResult, right: InterResult)(implicit line: Int): InterResult = for {
+  def addExpr(left: InterResult[Any], right: InterResult[Any])(implicit line: Int): InterResult[Any] = for {
     l <- left
     r <- right
     lPlusR <- add(l, r)
   } yield lPlusR
 
-  def minusExpr(expr: InterResult)(implicit line: Int): InterResult = for{
+  def minusExpr(expr: InterResult[Any])(implicit line: Int): InterResult[Any] = for{
     r <- expr
     rd <- toConvert[Double](r)
   } yield -rd
@@ -38,22 +37,22 @@ object MathExpr {
     case _              => true
   }
 
-  private def add(left: Any, right: Any)(implicit line: Int): InterResult = (left, right) match {
-    case (l: String, r: String) => Right(l + r)
-    case (l: Double, r: Double) => Right(l + r)
-    case _                      => Left(ErrorCompiler(line, s"It isn't possible to add these values: $left + $right"))
+  private def add(left: Any, right: Any)(implicit line: Int): InterResult[Any] = (left, right) match {
+    case (l: String, r: String) => unit(Right(l + r))
+    case (l: Double, r: Double) => unit(Right(l + r))
+    case _                      => unit(Left(ErrorCompiler(line, s"It isn't possible to add these values: $left + $right")))
   }
 
-  private def calculateBinaryExpr[A, B](left: InterResult, right: InterResult)(f: (A, A) => B)
-                                    (implicit line: Int): InterResult = for {
+  private def calculateBinaryExpr[A, B](left: InterResult[Any], right: InterResult[Any])(f: (A, A) => B)
+                                       (implicit line: Int): InterResult[Any] = for {
     l   <- left
     r   <- right
     ld  <- toConvert[A](l)
     rd  <- toConvert[A](r)
   } yield f(ld, rd)
 
-  private def toConvert[A](value: Any)(implicit line: Int): Either[ErrorCompiler, A] = value match {
-    case d: A   => Right(d)
-    case _      => Left(ErrorCompiler(line, s"Impossible to convert $value to double"))
+  private def toConvert[A](value: Any)(implicit line: Int): InterResult[A] = value match {
+    case d: A   => unit(Right(d))
+    case _      => unit(Left(ErrorCompiler(line, s"Impossible to convert $value to double")))
   }
 }
