@@ -2,19 +2,21 @@ package org.compiler.example
 package parser.stmt
 
 import lexer.{SEMICOLON, Token}
-import parser.expr.ParserExpr.{ExprResult, ParserExpr}
-import parser.stmt.ParserStmt.{ParserStmt, StmtResult, createSemicolonError, flatMap, unit}
+import parser.expr.Expr
+import parser.grammar.GrammarResult.GrammarResult
+import parser.grammar.ParserGrammar.{ParserExprMonad, ParserGrammar, unit}
+import parser.stmt.ParserStmt.createSemicolonError
 
 object ParserExpression {
 
-  def parserExpression(parserExpr: ParserExpr): ParserStmt =
-    flatMap(parserExpr)((left, _) => expression(left))
+  def parserExpression(parserExpr: ParserGrammar[Expr]): ParserGrammar[Stmt] =
+    parserExpr.flatMap((left, _) => expression(left))
 
-  private def expression(left: ExprResult): ParserStmt = {
+  private def expression(left: GrammarResult[Expr]): ParserGrammar[Stmt] = {
     case tokenList@Token(SEMICOLON, _, _, _)::_ => unit(createExpression(left))(tokenList.tail)
     case tokenList@Token(_, _, line, _)::_      => unit(createSemicolonError(line))(tokenList)
   }
 
-  private def createExpression(left: ExprResult): StmtResult =
+  private def createExpression(left: GrammarResult[Expr]): GrammarResult[Stmt] =
     left.map(expr => Expression(expr))
 }

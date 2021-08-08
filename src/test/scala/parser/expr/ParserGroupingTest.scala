@@ -2,9 +2,10 @@ package org.compiler.example
 package parser.expr
 
 import error.ErrorCompiler
-import lexer.{EOF, LEFT_PAREN, NUMBER, RIGHT_PAREN, SEMICOLON, Token}
-import parser.expr.ParserExpr.{ExprResult, ParserExpr}
+import lexer._
 import parser.expr.ParserGrouping.parserGrouping
+import parser.grammar.GrammarResult.GrammarResult
+import parser.grammar.ParserGrammar.ParserGrammar
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -20,9 +21,9 @@ class ParserGroupingTest extends AnyFunSuite with Matchers {
       Token(EOF, "", 1, None)
     )
 
-    val (exprResult: ExprResult, tokenListResult: List[Token]) = parserGrouping()(() => checkToken(expectedToken, expectedExprResult))(tokenList)
+    val (grammarResult: GrammarResult[Expr], tokenListResult: List[Token]) = parserGrouping()(() => checkToken(expectedToken, expectedExprResult))(tokenList)
     tokenListResult should have size 1
-    exprResult shouldBe Left(ErrorCompiler(1, s"Expect ')' after expression ''"))
+    grammarResult shouldBe Left(ErrorCompiler(1, s"Expect ')' after expression ''"))
   }
 
   test("Parsing grouping expression between parenthesis, should return grouping expression") {
@@ -35,12 +36,12 @@ class ParserGroupingTest extends AnyFunSuite with Matchers {
       Token(EOF, "", 1, None)
     )
 
-    val (exprResult: ExprResult, tokenListResult: List[Token]) = parserGrouping()(() => checkToken(expectedToken, literalResult))(tokenList)
+    val (grammarResult: GrammarResult[Expr], tokenListResult: List[Token]) = parserGrouping()(() => checkToken(expectedToken, literalResult))(tokenList)
     tokenListResult should have size 1
-    exprResult shouldBe Right(Grouping(literalResult))
+    grammarResult shouldBe Right(Grouping(literalResult))
   }
 
-  private def checkToken(expected: Token, result: Expr): ParserExpr = tokenList => {
+  private def checkToken(expected: Token, result: Expr): ParserGrammar[Expr] = tokenList => {
     tokenList.head shouldBe expected
     (Right(result), tokenList.tail)
   }

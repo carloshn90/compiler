@@ -1,9 +1,9 @@
 package org.compiler.example
 package parser.expr
 
-import lexer.{EOF, NUMBER, SEMICOLON, STRING, Token}
-import parser.expr.ParserExpr.ExprResult
+import lexer.{EOF, NUMBER, STRING, Token}
 import parser.expr.ParserLiteral.parserLiteral
+import parser.grammar.GrammarResult.GrammarResult
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -16,9 +16,9 @@ class ParserLiteralTest extends AnyFunSuite with Matchers {
       Token(EOF, "", 1, None)
     )
 
-    val  (exprResult: ExprResult, tokenListResult: List[Token]) = parserLiteral(2.33)(tokenList)
+    val  (grammarResult: GrammarResult[Expr], tokenListResult: List[Token]) = parserLiteral(2.33)(tokenList)
     tokenListResult should have size 1
-    exprResult shouldBe Right(Literal(2.33))
+    grammarResult shouldBe Right(Literal(2.33))
   }
 
   test("Parsing literal expression STRING, should return literal with a String") {
@@ -27,8 +27,8 @@ class ParserLiteralTest extends AnyFunSuite with Matchers {
       Token(EOF, "", 2, None)
     )
 
-    val  (exprResult: ExprResult, tokenListResult: List[Token]) = parserLiteral("hello")(tokenList)
+    val  (grammarResult: GrammarResult[Expr], tokenListResult: List[Token]) = parserLiteral("hello")(tokenList)
     tokenListResult should have size 1
-    exprResult shouldBe Right(Literal("hello"))
+    grammarResult shouldBe Right(Literal("hello"))
   }
 }

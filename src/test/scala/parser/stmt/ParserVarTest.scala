@@ -3,9 +3,9 @@ package parser.stmt
 
 import error.ErrorCompiler
 import lexer._
-import parser.expr.Literal
-import parser.expr.ParserExpr.ParserExpr
-import parser.stmt.ParserStmt.StmtResult
+import org.compiler.example.parser.grammar.GrammarResult.GrammarResult
+import org.compiler.example.parser.grammar.ParserGrammar.ParserGrammar
+import parser.expr.{Expr, Literal}
 import parser.stmt.ParserVar.parserVar
 
 import org.scalatest.funsuite.AnyFunSuite
@@ -25,10 +25,10 @@ class ParserVarTest extends AnyFunSuite with Matchers {
       Token(EOF, "", 1, None)
     )
 
-    val (exprResult: StmtResult, tokenListResult: List[Token]) = parserVar(expression(valueToken))(tokenList)
+    val (grammarResult: GrammarResult[Stmt], tokenListResult: List[Token]) = parserVar(expression(valueToken))(tokenList)
 
     tokenListResult should have size 1
-    exprResult shouldBe Right(Var(identifierToken, Literal(valueToken)))
+    grammarResult shouldBe Right(Var(identifierToken, Literal(valueToken)))
   }
 
   test("Parsing a var statement without value, should return a var with the null value") {
@@ -40,10 +40,10 @@ class ParserVarTest extends AnyFunSuite with Matchers {
       Token(EOF, "", 1, None)
     )
 
-    val (exprResult: StmtResult, tokenListResult: List[Token]) = parserVar(errorParserExpr())(tokenList)
+    val (grammarResult: GrammarResult[Stmt], tokenListResult: List[Token]) = parserVar(errorParserExpr())(tokenList)
 
     tokenListResult should have size 1
-    exprResult shouldBe Right(Var(identifierToken, null))
+    grammarResult shouldBe Right(Var(identifierToken, null))
   }
 
   test("Parsing a var statement with wrong expression, should return error") {
@@ -54,10 +54,10 @@ class ParserVarTest extends AnyFunSuite with Matchers {
       Token(EOF, "", 1, None)
     )
 
-    val (exprResult: StmtResult, tokenListResult: List[Token]) = parserVar(expression(valueToken))(tokenList)
+    val (grammarResult: GrammarResult[Stmt], tokenListResult: List[Token]) = parserVar(expression(valueToken))(tokenList)
 
     tokenListResult should have size 2
-    exprResult shouldBe Left(ErrorCompiler(1, "Expect variable name."))
+    grammarResult shouldBe Left(ErrorCompiler(1, "Expect variable name."))
   }
 
   test("Parsing a var statement missing semicolon, should return an error") {
@@ -71,16 +71,16 @@ class ParserVarTest extends AnyFunSuite with Matchers {
       Token(EOF, "", 1, None)
     )
 
-    val (exprResult: StmtResult, tokenListResult: List[Token]) = parserVar(expression(valueToken))(tokenList)
+    val (grammarResult: GrammarResult[Stmt], tokenListResult: List[Token]) = parserVar(expression(valueToken))(tokenList)
 
     tokenListResult should have size 1
-    exprResult shouldBe Left(ErrorCompiler(1, "Expect ';' after value."))
+    grammarResult shouldBe Left(ErrorCompiler(1, "Expect ';' after value."))
   }
 
-  private def expression(expected: Token): ParserExpr = tokenList => {
+  private def expression(expected: Token): ParserGrammar[Expr] = tokenList => {
     tokenList.head shouldBe expected
     (Right(Literal(expected)), tokenList.tail)
   }
 
-  private def errorParserExpr(): ParserExpr = tokenList => (Left(ErrorCompiler(0, "Error")), tokenList.tail)
+  private def errorParserExpr(): ParserGrammar[Expr] = tokenList => (Left(ErrorCompiler(0, "Error")), tokenList.tail)
 }

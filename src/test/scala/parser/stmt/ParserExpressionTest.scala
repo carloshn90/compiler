@@ -3,10 +3,10 @@ package parser.stmt
 
 import error.ErrorCompiler
 import lexer._
-import parser.expr.Literal
-import parser.expr.ParserExpr.ParserExpr
+import parser.expr.{Expr, Literal}
+import parser.grammar.GrammarResult.GrammarResult
+import parser.grammar.ParserGrammar.ParserGrammar
 import parser.stmt.ParserExpression.parserExpression
-import parser.stmt.ParserStmt.StmtResult
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -21,11 +21,11 @@ class ParserExpressionTest extends AnyFunSuite with Matchers {
       Token(EOF, "", 1, None)
     )
 
-    val (exprResult: StmtResult, tokenListResult: List[Token]) =
+    val (grammarResult: GrammarResult[Stmt], tokenListResult: List[Token]) =
       parserExpression(expression(expectedToken))(tokenList)
 
     tokenListResult should have size 1
-    exprResult shouldBe Right(Expression(Literal(expectedToken)))
+    grammarResult shouldBe Right(Expression(Literal(expectedToken)))
   }
 
   test("Parsing statement expression missing semicolon, return semicolon error") {
@@ -35,14 +35,14 @@ class ParserExpressionTest extends AnyFunSuite with Matchers {
       Token(EOF, "", 1, None)
     )
 
-    val (exprResult: StmtResult, tokenListResult: List[Token]) =
+    val (grammarResult: GrammarResult[Stmt], tokenListResult: List[Token]) =
       parserExpression(expression(expectedToken))(tokenList)
 
     tokenListResult should have size 1
-    exprResult shouldBe Left(ErrorCompiler(1, "Expect ';' after value."))
+    grammarResult shouldBe Left(ErrorCompiler(1, "Expect ';' after value."))
   }
 
-  private def expression(expected: Token): ParserExpr = tokenList => {
+  private def expression(expected: Token): ParserGrammar[Expr] = tokenList => {
     tokenList.head shouldBe expected
     (Right(Literal(expected)), tokenList.tail)
   }

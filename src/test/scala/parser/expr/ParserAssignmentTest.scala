@@ -4,7 +4,8 @@ package parser.expr
 import error.ErrorCompiler
 import lexer._
 import parser.expr.ParserAssignment.parserAssignment
-import parser.expr.ParserExpr.{ExprResult, ParserExpr}
+import parser.grammar.GrammarResult.GrammarResult
+import parser.grammar.ParserGrammar.ParserGrammar
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -22,11 +23,11 @@ class ParserAssignmentTest extends AnyFunSuite with Matchers {
       Token(EOF, "", 1, None)
     )
 
-    val (exprResult: ExprResult, tokenListResult: List[Token]) =
+    val (grammarResult: GrammarResult[Expr], tokenListResult: List[Token]) =
       parserAssignment(equality(identifierToken), Seq(EQUAL))(() => assignment(numberToken))(tokenList)
 
     tokenListResult should have size 1
-    exprResult shouldBe Right(Assign(identifierToken, Literal(1.14)))
+    grammarResult shouldBe Right(Assign(identifierToken, Literal(1.14)))
   }
 
   test("Parsing assigment with erroneous expression, should return a error") {
@@ -40,11 +41,11 @@ class ParserAssignmentTest extends AnyFunSuite with Matchers {
       Token(EOF, "", 1, None)
     )
 
-    val (exprResult: ExprResult, tokenListResult: List[Token]) =
+    val (grammarResult: GrammarResult[Expr], tokenListResult: List[Token]) =
       parserAssignment(erroneousExpression(identifierToken), Seq(EQUAL))(() => assignment(numberToken))(tokenList)
 
     tokenListResult should have size 1
-    exprResult shouldBe Left(ErrorCompiler(1, "Invalid assignment target."))
+    grammarResult shouldBe Left(ErrorCompiler(1, "Invalid assignment target."))
   }
 
   test("Parsing only left expression, should return left expression") {
@@ -55,29 +56,29 @@ class ParserAssignmentTest extends AnyFunSuite with Matchers {
       Token(EOF, "", 1, None)
     )
 
-    val (exprResult: ExprResult, tokenListResult: List[Token]) =
+    val (grammarResult: GrammarResult[Expr], tokenListResult: List[Token]) =
       parserAssignment(equality(numberToken), Seq(EQUAL))(() => errorIfCalled())(tokenList)
 
     tokenListResult should have size 1
-    exprResult shouldBe Right(Variable(numberToken))
+    grammarResult shouldBe Right(Variable(numberToken))
   }
 
-  private def equality(expected: Token): ParserExpr = tokenList => {
+  private def equality(expected: Token): ParserGrammar[Expr] = tokenList => {
     tokenList.head shouldBe expected
     (Right(Variable(expected)), tokenList.tail)
   }
 
-  private def erroneousExpression(expected: Token): ParserExpr = tokenList => {
+  private def erroneousExpression(expected: Token): ParserGrammar[Expr] = tokenList => {
     tokenList.head shouldBe expected
     (Right(Literal(expected)), tokenList.tail)
   }
 
-  private def assignment(expected: Token): ParserExpr = tokenList => {
+  private def assignment(expected: Token): ParserGrammar[Expr] = tokenList => {
     tokenList.head shouldBe expected
     (Right(Literal(1.14)), tokenList.tail)
   }
 
-  private def errorIfCalled(): ParserExpr = tokenList => {
+  private def errorIfCalled(): ParserGrammar[Expr] = tokenList => {
     fail("Assign shouldn't parser right expression")
     (Right(Literal()), tokenList)
   }

@@ -2,8 +2,9 @@ package org.compiler.example
 package parser.expr
 
 import lexer.Token
+import parser.grammar.Grammar
 
-sealed trait Expr
+sealed trait Expr extends Grammar
 
 case class Assign(token: Token, expr: Expr) extends Expr
 case class Binary(left: Expr, operator: Token, right: Expr) extends Expr

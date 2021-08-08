@@ -2,7 +2,7 @@ package org.compiler.example
 package parser.expr
 
 import lexer.{EOF, IDENTIFIER, Token}
-import parser.expr.ParserExpr.ExprResult
+import org.compiler.example.parser.grammar.GrammarResult.GrammarResult
 import parser.expr.ParserVariable.parserVariable
 
 import org.scalatest.funsuite.AnyFunSuite
@@ -18,10 +18,10 @@ class ParserVariableTest extends AnyFunSuite with Matchers {
       Token(EOF, "", 1, None)
     )
 
-    val (exprResult: ExprResult, tokenListResult: List[Token]) = parserVariable(identifierToken)(tokenList)
+    val (grammarResult: GrammarResult[Expr], tokenListResult: List[Token]) = parserVariable(identifierToken)(tokenList)
 
     tokenListResult should have size 1
-    exprResult shouldBe Right(Variable(identifierToken))
+    grammarResult shouldBe Right(Variable(identifierToken))
   }
 
 }

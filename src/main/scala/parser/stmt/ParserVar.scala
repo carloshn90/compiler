@@ -3,28 +3,30 @@ package parser.stmt
 
 import error.ErrorCompiler
 import lexer.{EQUAL, IDENTIFIER, SEMICOLON, Token}
-import parser.expr.ParserExpr.{ExprResult, ParserExpr}
-import parser.stmt.ParserStmt.{ParserStmt, StmtResult, createSemicolonError, map, flatMapStmt, unit}
+import parser.expr.Expr
+import parser.grammar.GrammarResult.GrammarResult
+import parser.grammar.ParserGrammar.{ParserExprMonad, ParserGrammar, unit}
+import parser.stmt.ParserStmt.createSemicolonError
 
 object ParserVar {
 
-  def parserVar(parserExpr: ParserExpr): ParserStmt = {
+  def parserVar(parserExpr: ParserGrammar[Expr]): ParserGrammar[Stmt] = {
     case tokenList@Token(IDENTIFIER, _, _, _)::tail  => variable(parserExpr, tokenList.head)(tail)
     case tokenList@Token(_, _, line, _)::_           => unit(Left(ErrorCompiler(line, "Expect variable name.")))(tokenList)
   }
 
-  private def variable(parserExpr: ParserExpr, identifier: Token): ParserStmt =
-    flatMapStmt(initializerVar(parserExpr, identifier))((expr, _) => checkSemicolon(expr))
+  private def variable(parserExpr: ParserGrammar[Expr], identifier: Token): ParserGrammar[Stmt] =
+    initializerVar(parserExpr, identifier).flatMap((expr, _) => checkSemicolon(expr))
 
-  private def initializerVar(parserExpr: ParserExpr, identifier: Token): ParserStmt = {
-    case Token(EQUAL, _, _, _)::tail  => map(parserExpr)((left, _) => createVar(left, identifier))(tail)
+  private def initializerVar(parserExpr: ParserGrammar[Expr], identifier: Token): ParserGrammar[Stmt] = {
+    case Token(EQUAL, _, _, _)::tail  => parserExpr.map((left, _) => createVar(left, identifier))(tail)
     case tokenList@_                  => unit(createVar(Right(null), identifier))(tokenList)
   }
 
-  private def createVar(left: ExprResult, identifier: Token): StmtResult =
+  private def createVar(left: GrammarResult[Expr], identifier: Token): GrammarResult[Stmt] =
     left.map(l => Var(identifier, l))
 
-  private def checkSemicolon(left: StmtResult): ParserStmt = {
+  private def checkSemicolon(left: GrammarResult[Stmt]): ParserGrammar[Stmt] = {
     case Token(SEMICOLON, _, _, _)::tail    => unit(left)(tail)
     case tokenList@Token(_, _, line, _)::_  => unit(createSemicolonError(line))(tokenList)
   }
