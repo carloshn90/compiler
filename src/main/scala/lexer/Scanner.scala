@@ -59,14 +59,14 @@ class Scanner(implicit keywords: Map[String, TokenType]) {
     val numeric         = """([0-9]+)""".r
     val isReservedChar  = """([\n(){},.\-+;*!=<>/ \r\t"])""".r
     source match {
-      case List()                               => createStringToken(value).map(token => (List(), tokenList :+ token))
+      case List()                               => createNumberOrStringToken(value).map(token => (List(), tokenList :+ token))
       case '.'::tail if numeric.matches(value)  => addGenericToken(tail, tokenList, value + '.')
-      case isReservedChar(_)::_                 => createStringToken(value).map(token => (source, tokenList :+ token))
+      case isReservedChar(_)::_                 => createNumberOrStringToken(value).map(token => (source, tokenList :+ token))
       case head::tail                           => addGenericToken(tail, tokenList, value + head)
     }
   }
 
-  private def createStringToken(value: String)(implicit line: Int): Either[ErrorCompiler, Token] = try {
+  private def createNumberOrStringToken(value: String)(implicit line: Int): Either[ErrorCompiler, Token] = try {
     Right(Token(NUMBER, value, line, Some(value.toDouble)))
   } catch {
     case _: Throwable => createIdentifierToken(value)

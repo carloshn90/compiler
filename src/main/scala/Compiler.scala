@@ -3,7 +3,8 @@ package org.compiler.example
 import error.ErrorCompiler
 import interpreter.{Environment, Interpreter}
 import lexer.{Scanner, Token, TokenType}
-import parser.{Parser, Stmt}
+import parser.Parser
+import parser.stmt.Stmt
 
 object Compiler extends App {
 

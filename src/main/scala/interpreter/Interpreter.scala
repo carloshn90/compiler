@@ -2,13 +2,14 @@ package org.compiler.example
 package interpreter
 
 import error.ErrorCompiler
-import interpreter.MathExpr.{addExpr, isEqual, isTruthy, logicExpr, mathExpr, minusExpr}
+import interpreter.InterpreterResult.{InterResult, InterResultMonad, unit}
+import interpreter.MathExpr._
+import interpreter.PrettierOutput.stringify
 import lexer._
-import parser._
+import parser.expr._
+import parser.stmt.{Expression, Print, Stmt, Var}
 
 import cats.implicits._
-import interpreter.PrettierOutput.stringify
-import interpreter.InterpreterResult.{InterResult, unit, InterResultMonad}
 
 class Interpreter {
 
