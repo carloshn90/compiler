@@ -16,7 +16,7 @@ object InterUnary {
 
     token.tokenType match {
       case MINUS  => minusExpr(rightValue)
-      case BANG   => rightValue.map(isTruthy)
+      case BANG   => rightValue.map(r => !isTruthy(r))
     }
   }
 
