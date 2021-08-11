@@ -10,7 +10,7 @@ import parser.expr.Expr
 
 object InterVar {
 
-  def interVar(token: Token, expr: Expr): InterResult[Unit] = env => {
+  def interVar(token: Token, expr: Expr): InterResult[Option[String]] = env => {
     val (right: Either[ErrorCompiler, Any], nextEnv: Environment) = evaluate(expr)(env)
     right match {
       case Right(null)   => defineVar(token.lexeme, Nil)(nextEnv)
@@ -19,5 +19,5 @@ object InterVar {
     }
   }
 
-  private def defineVar(name: String, value: Any): InterResult[Unit] = env => (Right(), env.define(name, value))
+  private def defineVar(name: String, value: Any): InterResult[Option[String]] = env => (Right(None), env.define(name, value))
 }

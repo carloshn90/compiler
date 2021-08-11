@@ -21,10 +21,12 @@ object Compiler extends App {
     val interpreter: Interpreter = new Interpreter()
     val tokenList: Either[ErrorCompiler, List[Token]] = scanner.scanTokens(fileContent.toList)
 
-    val expr: Either[ErrorCompiler, Unit] = tokenList
+    val expr: Either[ErrorCompiler, List[String]] = tokenList
       .flatMap(parser.parser())
-      .flatMap((stmtList: List[Stmt]) => interpreter.interpreter(stmtList)(new Environment)._1)
+      .flatMap((stmtList: List[Stmt]) => interpreter.interpreter(stmtList, Right(List()))(new Environment)._1)
 
-    if (expr.isLeft) println(expr.left)
+    expr.map(_.reverse)
+      .map(list => list.map(println))
+      .getOrElse(println)
   }
 }

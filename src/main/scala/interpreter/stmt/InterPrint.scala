@@ -2,11 +2,22 @@ package org.compiler.example
 package interpreter.stmt
 
 import interpreter.InterpreterResult.{InterResult, InterResultMonad}
-import interpreter.PrettierOutput.stringify
 import interpreter.expr.InterExpr.evaluate
 import parser.expr.Expr
 
 object InterPrint {
 
-  def interPrint(expr: Expr): InterResult[Unit] = evaluate(expr).map(expr => println(stringify(expr)))
+  def interPrint(expr: Expr): InterResult[Option[String]] = evaluate(expr).map(e => Some(stringify(e)))
+
+  private def stringify(value: Any): String = value match {
+    case Nil|null          => "Nil"
+    case d: Double         => stringifyDouble(d)
+    case v                 => v.toString
+  }
+
+  private def stringifyDouble(double: Double): String = {
+    val doubleStr = double.toString
+    if (doubleStr.endsWith(".0")) doubleStr.substring(0, doubleStr.length - 2)
+    else doubleStr
+  }
 }
