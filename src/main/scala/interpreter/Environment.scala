@@ -10,5 +10,5 @@ class Environment(values: Map[String, Any] = Map()) {
 
   def get(token: Token): Either[String, Any] =
     values.get(token.lexeme)
-      .toRight(s"Undefined variable '${token.lexeme}'.'")
+      .toRight(s"Undefined variable '${token.lexeme}'.")
 }
