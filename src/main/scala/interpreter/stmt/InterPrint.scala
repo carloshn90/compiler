@@ -1,7 +1,7 @@
 package org.compiler.example
 package interpreter.stmt
 
-import interpreter.InterpreterResult.{InterResult, InterResultMonad}
+import interpreter.InterResult.{InterResult, InterResultMonad}
 import interpreter.expr.InterExpr.evaluate
 import parser.expr.Expr
 

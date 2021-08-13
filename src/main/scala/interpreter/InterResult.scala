@@ -5,7 +5,7 @@ import error.ErrorCompiler
 
 import cats.implicits.catsSyntaxApply
 
-object InterpreterResult {
+object InterResult {
 
   type InterResult[A] = Environment => (Either[ErrorCompiler, A], Environment)
 

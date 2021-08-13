@@ -1,8 +1,8 @@
 package org.compiler.example
 package interpreter.expr
 
-import interpreter.Converter.convert
-import interpreter.InterpreterResult.{InterResult, InterResultMonad}
+import interpreter.Converter.convertToDouble
+import interpreter.InterResult.{InterResult, InterResultMonad}
 import interpreter.expr.InterExpr.evaluate
 import lexer.{BANG, MINUS, Token}
 import parser.expr.Expr
@@ -22,7 +22,7 @@ object InterUnary {
 
   def minusExpr(expr: InterResult[Any])(implicit line: Int): InterResult[Any] = for{
     r <- expr
-    rd <- convert[Double](r)
+    rd <- convertToDouble(r)
   } yield -rd
 
   private def isTruthy(value: Any): Boolean = value match {

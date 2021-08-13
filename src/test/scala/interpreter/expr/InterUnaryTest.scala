@@ -34,4 +34,15 @@ class InterUnaryTest extends AnyFunSuite with Matchers {
     result shouldBe Right(false)
   }
 
+  test("Interpreting Bang Unary expression string literal, should return the opposite boolean value") {
+
+    val token: Token = Token(BANG, "!", 0, None)
+    val expr: Expr = Literal("Hi")
+    val env: Environment = new Environment()
+
+    val result: Either[ErrorCompiler, Any] = interUnary(token, expr)(env)._1
+
+    result shouldBe Right(false)
+  }
+
 }

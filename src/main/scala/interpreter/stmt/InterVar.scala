@@ -3,7 +3,7 @@ package interpreter.stmt
 
 import error.ErrorCompiler
 import interpreter.Environment
-import interpreter.InterpreterResult.InterResult
+import interpreter.InterResult.InterResult
 import interpreter.expr.InterExpr.evaluate
 import lexer.Token
 import parser.expr.Expr
@@ -15,7 +15,7 @@ object InterVar {
     right match {
       case Right(null)   => defineVar(token.lexeme, Nil)(nextEnv)
       case Right(value)  => defineVar(token.lexeme, value)(nextEnv)
-      case _             => defineVar(token.lexeme, Nil)(nextEnv)
+      case Left(err)     => (Left(err), nextEnv)
     }
   }
 

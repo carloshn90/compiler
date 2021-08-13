@@ -1,7 +1,7 @@
 package org.compiler.example
 package interpreter.stmt
 
-import interpreter.InterpreterResult.InterResult
+import interpreter.InterResult.InterResult
 import interpreter.stmt.InterExpression.interExpression
 import interpreter.stmt.InterPrint.interPrint
 import interpreter.stmt.InterVar.interVar

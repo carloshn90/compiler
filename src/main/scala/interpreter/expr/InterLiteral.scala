@@ -1,7 +1,7 @@
 package org.compiler.example
 package interpreter.expr
 
-import interpreter.InterpreterResult.{InterResult, unit}
+import interpreter.InterResult.{InterResult, unit}
 
 object InterLiteral {
 

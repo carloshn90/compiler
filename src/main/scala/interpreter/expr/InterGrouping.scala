@@ -1,7 +1,7 @@
 package org.compiler.example
 package interpreter.expr
 
-import interpreter.InterpreterResult.InterResult
+import interpreter.InterResult.InterResult
 import interpreter.expr.InterExpr.evaluate
 import parser.expr.Expr
 

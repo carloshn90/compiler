@@ -3,7 +3,7 @@ package interpreter.expr
 
 import error.ErrorCompiler
 import interpreter.Environment
-import interpreter.InterpreterResult.{InterResult, unit}
+import interpreter.InterResult.{InterResult, unit}
 import lexer.Token
 
 import cats.implicits.toBifunctorOps

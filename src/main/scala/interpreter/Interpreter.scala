@@ -2,7 +2,7 @@ package org.compiler.example
 package interpreter
 
 import error.ErrorCompiler
-import interpreter.InterpreterResult.{InterResult, unit}
+import interpreter.InterResult.{InterResult, unit}
 import interpreter.stmt.InterStmt.execute
 import parser.stmt.Stmt
 

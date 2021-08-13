@@ -5,6 +5,8 @@ import lexer.Token
 
 class Environment(values: Map[String, Any] = Map()) {
 
+  def size: Int = values.size
+
   def define(name: String, value: Any): Environment =
     new Environment(values + (name -> value))
 

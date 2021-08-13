@@ -2,8 +2,8 @@ package org.compiler.example
 package interpreter.expr
 
 import error.ErrorCompiler
-import interpreter.Converter.convert
-import interpreter.InterpreterResult.{InterResult, InterResultMonad, unit}
+import interpreter.Converter.convertToDouble
+import interpreter.InterResult.{InterResult, InterResultMonad, unit}
 import interpreter.expr.InterExpr.evaluate
 import lexer.{BANG_EQUAL, EQUAL_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL, MINUS, PLUS, SLASH, STAR, Token}
 import parser.expr.Expr
@@ -43,19 +43,19 @@ object InterBinary {
   }
 
   private def executeOperation(left: InterResult[Any], right: InterResult[Any])
-              (f: (Double, Double) => Double)(implicit line: Int): InterResult[Any] =
-    execute[Double, Double](left, right)(f)
-
-  private def executeLogic(left: InterResult[Any], right: InterResult[Any])
-               (f: (Double, Double) => Boolean)(implicit line: Int): InterResult[Any] =
-    execute[Double, Boolean](left, right)(f)
-
-  private def execute[A, B](left: InterResult[Any], right: InterResult[Any])(f: (A, A) => B)
-                                       (implicit line: Int): InterResult[Any] = for {
+              (f: (Double, Double) => Double)(implicit line: Int): InterResult[Any] =for {
     l   <- left
     r   <- right
-    ld  <- convert[A](l)
-    rd  <- convert[A](r)
+    ld  <- convertToDouble(l)
+    rd  <- convertToDouble(r)
+  } yield f(ld, rd)
+
+  private def executeLogic(left: InterResult[Any], right: InterResult[Any])
+               (f: (Double, Double) => Boolean)(implicit line: Int): InterResult[Any] = for {
+    l   <- left
+    r   <- right
+    ld  <- convertToDouble(l)
+    rd  <- convertToDouble(r)
   } yield f(ld, rd)
 
   private def isEqual(left: Any, right: Any): Boolean = (left, right) match {
