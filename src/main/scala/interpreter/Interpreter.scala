@@ -14,9 +14,6 @@ class Interpreter {
     case List() =>  unit(result)(env)
     case h::t   =>
       val (r, e) = execute(h)(env)
-      interpreter(t, result.map2(r)(addToList))(e)
+      interpreter(t, r.map2(result)(_:::_))(e)
   }
-
-  private def addToList(list: List[String], value: Option[String]): List[String] =
-    value.map(v => v :: list).getOrElse(list)
 }

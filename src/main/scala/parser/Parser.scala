@@ -11,6 +11,7 @@ import parser.expr.ParserLiteral.parserLiteral
 import parser.expr.ParserUnary.parserUnary
 import parser.expr.ParserVariable.parserVariable
 import parser.grammar.ParserGrammar.{ParserGrammar, unit}
+import parser.stmt.ParserBlock.parserBlock
 import parser.stmt.ParserExpression.parserExpression
 import parser.stmt.ParserPrint.parserPrint
 import parser.stmt.ParserVar.parserVar
@@ -33,7 +34,7 @@ import util.Applicative.eitherApplicative
  *   </tr>
  *   <tr>
  *     <td>statement</td>
- *     <td>→ exprStmt | printStmt ;</td>
+ *     <td>→ exprStmt | printStmt | block;</td>
  *   </tr>
  *   <tr>
  *     <td>exprStmt</td>
@@ -42,6 +43,10 @@ import util.Applicative.eitherApplicative
  *   <tr>
  *     <td>printStmt</td>
  *     <td>→ "print" expression ";" ;</td>
+ *   </tr>
+ *   <tr>
+ *     <td>block</td>
+ *     <td>→ "{" declaration* "}" ;</td>
  *   </tr>
  *   <tr>
  *     <td>expression</td>
@@ -110,8 +115,9 @@ class Parser {
    * statement → exprStmt | printStmt;
    */
   def statement(): ParserGrammar[Stmt] = {
-    case Token(PRINT, _, _, _)::tail  => printStmt()(tail)
-    case tokenList@_::_               => exprStmt()(tokenList)
+    case Token(PRINT, _, _, _)::tail              => printStmt()(tail)
+    case Token(LEFT_BRACE, _, _, _)::tail         => blockStmt()(tail)
+    case tokenList@_::_                           => exprStmt()(tokenList)
   }
 
   /**
@@ -125,6 +131,12 @@ class Parser {
    */
   def exprStmt(): ParserGrammar[Stmt] =
     parserExpression(expression())
+
+  /**
+   * block → "{" declaration* "}" ;
+   */
+  def blockStmt(): ParserGrammar[Stmt] =
+    parserBlock(declaration())
 
   /**
    * expression → assignment;
