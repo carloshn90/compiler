@@ -25,8 +25,9 @@ object Compiler extends App {
       .flatMap(parser.parser())
       .flatMap((stmtList: List[Stmt]) => interpreter.interpreter(stmtList, Right(List()))(new Environment)._1)
 
-    expr.map(_.reverse)
-      .map(list => list.map(println))
-      .getOrElse(println)
+    expr.map(_.reverse) match {
+      case Right(list)  => list.foreach(println)
+      case Left(err)    => println(err)
+    }
   }
 }

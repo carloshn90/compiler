@@ -3,6 +3,6 @@
 //print -2 + 2 * 3 / (5 * 3.1415) + 5;
 var a = 1;
 var b = 2;
-//a = 1;
+a = 2;
 print a + (b + 3);
 print "hello";
