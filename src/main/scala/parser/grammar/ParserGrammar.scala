@@ -26,5 +26,10 @@ object ParserGrammar {
         case (Left(err), tokens)   => (Left(err), tokens)
       }
     }
+    def map2[B <:Grammar, C <: Grammar](right: ParserGrammar[B])(f: (GrammarResult[A], GrammarResult[B]) => GrammarResult[C]): ParserGrammar[C] =
+      parserExpr.flatMap((l, _) => right.map((r, _) => f(l, r)))
+
+    def flatMap2[B <:Grammar, C <: Grammar](right: ParserGrammar[B])(f: (GrammarResult[A], GrammarResult[B]) => ParserGrammar[C]): ParserGrammar[C] =
+      parserExpr.flatMap((l, _) => right.flatMap((r, _) => f(l, r)))
   }
 }

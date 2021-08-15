@@ -25,6 +25,6 @@ object ParserBlock {
     })
 
   private def createBlock(token: Token, stmtList: List[Stmt]): ParserGrammar[Stmt] =
-    if (token.tokenType != RIGHT_BRACE) unit(Left(ErrorCompiler(token.line, "Expect '}' after block.")))
+    if (token.tokenType != RIGHT_BRACE) unit(Left(ErrorCompiler(token.line - 1, "Expect '}' after block.")))
     else advance(unit(GrammarResult.unit(Block(stmtList))))
 }

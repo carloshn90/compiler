@@ -10,9 +10,11 @@ import parser.expr.ParserGrouping.parserGrouping
 import parser.expr.ParserLiteral.parserLiteral
 import parser.expr.ParserUnary.parserUnary
 import parser.expr.ParserVariable.parserVariable
+import parser.grammar.GrammarResult.GrammarResult
 import parser.grammar.ParserGrammar.{ParserGrammar, unit}
 import parser.stmt.ParserBlock.parserBlock
 import parser.stmt.ParserExpression.parserExpression
+import parser.stmt.ParserIf.parserIf
 import parser.stmt.ParserPrint.parserPrint
 import parser.stmt.ParserVar.parserVar
 import parser.stmt.Stmt
@@ -34,11 +36,15 @@ import util.Applicative.eitherApplicative
  *   </tr>
  *   <tr>
  *     <td>statement</td>
- *     <td>→ exprStmt | printStmt | block;</td>
+ *     <td>→ ifStatement | printStmt | block | exprStmt;</td>
  *   </tr>
  *   <tr>
  *     <td>exprStmt</td>
  *     <td>→ expression ";" ;</td>
+ *   </tr>
+ *   <tr>
+ *     <td>ifStatement</td>
+ *     <td>→ "if" "(" expression ")" statement ("else" statement)? ;</td>
  *   </tr>
  *   <tr>
  *     <td>printStmt</td>
@@ -112,13 +118,20 @@ class Parser {
     parserVar(expression())
 
   /**
-   * statement → exprStmt | printStmt;
+   * statement → ifStatement | printStmt | block | exprStmt ;
    */
   def statement(): ParserGrammar[Stmt] = {
-    case Token(PRINT, _, _, _)::tail              => printStmt()(tail)
-    case Token(LEFT_BRACE, _, _, _)::tail         => blockStmt()(tail)
-    case tokenList@_::_                           => exprStmt()(tokenList)
+    case Token(IF, _, _, _)::tail         => ifStatement()(tail)
+    case Token(PRINT, _, _, _)::tail      => printStmt()(tail)
+    case Token(LEFT_BRACE, _, _, _)::tail => blockStmt()(tail)
+    case tokenList@_::_                   => exprStmt()(tokenList)
   }
+
+  /**
+   * ifStatement → "if" "(" expression ")" statement ("else" statement)? ;
+   */
+  def ifStatement(): ParserGrammar[Stmt] =
+    parserIf(expression(), statement())
 
   /**
    * printStmt → "print" expression ";" ;
@@ -141,7 +154,7 @@ class Parser {
   /**
    * expression → assignment;
    */
-  private def expression(): ParserGrammar[Expr] = assignment()
+  def expression(): ParserGrammar[Expr] = assignment()
 
   /**
    * assignment → IDENTIFIER "=" assignment | equality ;
@@ -190,5 +203,9 @@ class Parser {
    case tokenList@Token(STRING, _, _, literal)::_ => parserLiteral(literal.get)(tokenList)
    case tokenList@Token(LEFT_PAREN, _, _, _)::_   => parserGrouping()(expression)(tokenList)
    case tokenList@Token(IDENTIFIER, _, _, _)::_   => parserVariable(tokenList.head)(tokenList)
+   case tokenList@_                               => unit(errorParsingExpr(tokenList.head))(tokenList)
   }
+
+  private def errorParsingExpr(token: Token): GrammarResult[Expr] =
+    Left(ErrorCompiler(token.line, s"the expression '${token.lexeme}' is not allowed here."))
 }

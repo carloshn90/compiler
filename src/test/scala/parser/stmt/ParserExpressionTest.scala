@@ -32,7 +32,7 @@ class ParserExpressionTest extends AnyFunSuite with Matchers {
     val expectedToken: Token = Token(NUMBER, "1.578", 1, Some(1.578))
     val tokenList: List[Token] = List(
       expectedToken,
-      Token(EOF, "", 1, None)
+      Token(EOF, "", 2, None)
     )
 
     val (grammarResult: GrammarResult[Stmt], tokenListResult: List[Token]) =

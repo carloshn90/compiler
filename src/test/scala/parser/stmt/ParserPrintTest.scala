@@ -32,7 +32,7 @@ class ParserPrintTest extends AnyFunSuite with Matchers {
     val expectedToken: Token = Token(STRING, "Hello", 1, Some("Hello"))
     val tokenList: List[Token] = List(
       expectedToken,
-      Token(EOF, "", 1, None)
+      Token(EOF, "", 2, None)
     )
 
     val (grammarResult: GrammarResult[Stmt], tokenListResult: List[Token]) =

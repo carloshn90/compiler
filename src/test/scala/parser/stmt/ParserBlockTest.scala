@@ -44,13 +44,13 @@ class ParserBlockTest extends AnyFunSuite with Matchers {
       Token(PRINT, "print", 1, None),
       Token(STRING, "Hello", 1, Some("Hello")),
       Token(SEMICOLON, ";", 1, None),
-      Token(EOF, "", 4, None)
+      Token(EOF, "", 2, None)
     )
 
     val parser: Parser = new Parser()
     val grammarResult: GrammarResult[Stmt] = parserBlock(parser.declaration())(tokenList)._1
 
-    grammarResult shouldBe Left(ErrorCompiler(4, "Expect '}' after block."))
+    grammarResult shouldBe Left(ErrorCompiler(1, "Expect '}' after block."))
   }
 
   test("Error Parsing statement, should return error") {
@@ -58,13 +58,13 @@ class ParserBlockTest extends AnyFunSuite with Matchers {
     val tokenList: List[Token] = List(
       Token(PRINT, "print", 1, None),
       Token(STRING, "Hello", 1, Some("Hello")),
-      Token(EOF, "", 4, None)
+      Token(EOF, "", 2, None)
     )
 
     val parser: Parser = new Parser()
     val grammarResult: GrammarResult[Stmt] = parserBlock(parser.declaration())(tokenList)._1
 
-    grammarResult shouldBe Left(ErrorCompiler(4, "Expect ';' after value."))
+    grammarResult shouldBe Left(ErrorCompiler(1, "Expect ';' after value."))
   }
 
   test("Error Parsing expression, should return error") {

@@ -3,9 +3,9 @@ package parser.stmt
 
 import error.ErrorCompiler
 import lexer._
-import org.compiler.example.parser.grammar.GrammarResult.GrammarResult
-import org.compiler.example.parser.grammar.ParserGrammar.ParserGrammar
 import parser.expr.{Expr, Literal}
+import parser.grammar.GrammarResult.GrammarResult
+import parser.grammar.ParserGrammar.ParserGrammar
 import parser.stmt.ParserVar.parserVar
 
 import org.scalatest.funsuite.AnyFunSuite
@@ -68,7 +68,7 @@ class ParserVarTest extends AnyFunSuite with Matchers {
       identifierToken,
       Token(EQUAL, "=", 1, None),
       valueToken,
-      Token(EOF, "", 1, None)
+      Token(EOF, "", 2, None)
     )
 
     val (grammarResult: GrammarResult[Stmt], tokenListResult: List[Token]) = parserVar(expression(valueToken))(tokenList)
