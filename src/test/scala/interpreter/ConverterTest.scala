@@ -2,7 +2,7 @@ package org.compiler.example
 package interpreter
 
 import error.ErrorCompiler
-import interpreter.Converter.{convertToBoolean, convertToDouble}
+import interpreter.util.Converter.{convertToBoolean, convertToDouble}
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers

@@ -1,9 +1,9 @@
 package org.compiler.example
 package interpreter.expr
 
-import interpreter.Converter.convertToDouble
 import interpreter.InterResult.{InterResult, InterResultMonad}
 import interpreter.expr.InterExpr.evaluate
+import interpreter.util.Converter.{convertToDouble, isTruthy}
 import lexer.{BANG, MINUS, Token}
 import parser.expr.Expr
 
@@ -24,10 +24,4 @@ object InterUnary {
     r <- expr
     rd <- convertToDouble(r)
   } yield -rd
-
-  private def isTruthy(value: Any): Boolean = value match {
-    case Nil            => false
-    case value: Boolean => value
-    case _              => true
-  }
 }

@@ -2,9 +2,9 @@ package org.compiler.example
 package interpreter.expr
 
 import error.ErrorCompiler
-import interpreter.Converter.convertToDouble
 import interpreter.InterResult.{InterResult, InterResultMonad, unit}
 import interpreter.expr.InterExpr.evaluate
+import interpreter.util.Converter.convertToDouble
 import lexer.{BANG_EQUAL, EQUAL_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL, MINUS, PLUS, SLASH, STAR, Token}
 import parser.expr.Expr
 

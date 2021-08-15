@@ -98,7 +98,10 @@ class Parser {
 
     if (currentToken.tokenType != EOF) {
       val (stmt, leftTokenList) = declaration()(tokenList)
-      parser(parserStmtList :+ unit(stmt))(leftTokenList)
+      stmt match {
+        case Right(value) => parser(parserStmtList :+ unit(Right(value)))(leftTokenList)
+        case Left(err)    => Left(err)
+      }
     } else
       eitherApplicative.sequence(parserStmtList.map(a => a(tokenList)._1))
   }
