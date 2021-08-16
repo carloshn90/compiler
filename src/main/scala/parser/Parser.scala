@@ -8,6 +8,7 @@ import parser.expr.ParserAssignment.parserAssignment
 import parser.expr.ParserBinary.parserBinary
 import parser.expr.ParserGrouping.parserGrouping
 import parser.expr.ParserLiteral.parserLiteral
+import parser.expr.ParserLogical.parserLogical
 import parser.expr.ParserUnary.parserUnary
 import parser.expr.ParserVariable.parserVariable
 import parser.grammar.GrammarResult.GrammarResult
@@ -60,7 +61,15 @@ import util.Applicative.eitherApplicative
  *   </tr>
  *   <tr>
  *     <td>assignment</td>
- *     <td>→ IDENTIFIER "=" assignment | equality ;</td>
+ *     <td>→ IDENTIFIER "=" assignment | logicOr ;</td>
+ *   </tr>
+ *   <tr>
+ *     <td>logicOr</td>
+ *     <td>→ logicAnd ( "or" logicAnd )*;</td>
+ *   </tr>
+ *   <tr>
+ *     <td>logicAnd</td>
+ *     <td>→ equality ( "and" equality )*;</td>
  *   </tr>
  *   <tr>
  *     <td>equality</td>
@@ -160,45 +169,57 @@ class Parser {
   def expression(): ParserGrammar[Expr] = assignment()
 
   /**
-   * assignment → IDENTIFIER "=" assignment | equality ;
+   * assignment → IDENTIFIER "=" assignment | logicOr ;
    */
-  private def assignment(): ParserGrammar[Expr] =
-    parserAssignment(equality(), Seq(EQUAL))(assignment)
+  def assignment(): ParserGrammar[Expr] =
+    parserAssignment(logicOr(), Seq(EQUAL))(assignment)
+
+  /**
+   * logicOr → logicAnd ( "or" logicAnd )*;
+   */
+  def logicOr(): ParserGrammar[Expr] =
+    parserLogical(logicAnd(), OR)
+
+  /**
+   * logicAnd → equality ( "and" equality )*;
+   */
+  def logicAnd(): ParserGrammar[Expr] =
+    parserLogical(equality(), AND)
 
   /**
    * equality → comparison ( ( "!=" | "==" ) comparison )* ;
    */
-  private def equality(): ParserGrammar[Expr] =
+  def equality(): ParserGrammar[Expr] =
     parserBinary(comparison(), Seq(BANG_EQUAL, EQUAL_EQUAL))(comparison)
 
   /**
    * comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
    */
-  private def comparison(): ParserGrammar[Expr] =
+  def comparison(): ParserGrammar[Expr] =
     parserBinary(term(), Seq(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL))(term)
 
   /**
    *term → factor ( ( "-" | "+" ) factor )* ;
    */
-  private def term(): ParserGrammar[Expr] =
+  def term(): ParserGrammar[Expr] =
     parserBinary(factor(), Seq(MINUS, PLUS))(factor)
 
   /**
    * factor → unary ( ( "/" | "*" ) unary )* ;
    */
-  private def factor(): ParserGrammar[Expr] =
+  def factor(): ParserGrammar[Expr] =
     parserBinary(unary(), Seq(SLASH, STAR))(unary)
 
   /**
    * unary → ( "!" | "-" ) unary | primary ;
    */
-  private def unary(): ParserGrammar[Expr] =
+  def unary(): ParserGrammar[Expr] =
     parserUnary(Seq(BANG, MINUS))(unary, primary)
 
   /**
    * primary → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
    */
-  private def primary(): ParserGrammar[Expr] = {
+  def primary(): ParserGrammar[Expr] = {
    case tokenList@Token(FALSE, _, _, _)::_        => parserLiteral(false)(tokenList)
    case tokenList@Token(TRUE, _, _, _)::_         => parserLiteral(true)(tokenList)
    case tokenList@Token(NIL, _, _, _)::_          => parserLiteral(Nil)(tokenList)
