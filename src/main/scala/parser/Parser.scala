@@ -18,6 +18,7 @@ import parser.stmt.ParserExpression.parserExpression
 import parser.stmt.ParserIf.parserIf
 import parser.stmt.ParserPrint.parserPrint
 import parser.stmt.ParserVar.parserVar
+import parser.stmt.ParserWhileStmt.parserWhileStmt
 import parser.stmt.Stmt
 import util.Applicative.eitherApplicative
 
@@ -37,11 +38,7 @@ import util.Applicative.eitherApplicative
  *   </tr>
  *   <tr>
  *     <td>statement</td>
- *     <td>→ ifStatement | printStmt | block | exprStmt;</td>
- *   </tr>
- *   <tr>
- *     <td>exprStmt</td>
- *     <td>→ expression ";" ;</td>
+ *     <td>→ ifStatement | printStmt | block | whileStmt | exprStmt;</td>
  *   </tr>
  *   <tr>
  *     <td>ifStatement</td>
@@ -54,6 +51,14 @@ import util.Applicative.eitherApplicative
  *   <tr>
  *     <td>block</td>
  *     <td>→ "{" declaration* "}" ;</td>
+ *   </tr>
+ *   <tr>
+ *     <td>whileStmt</td>
+ *     <td>→ "while" "(" expression ")" statement ;</td>
+ *   </tr>
+ *   <tr>
+ *     <td>exprStmt</td>
+ *     <td>→ expression ";" ;</td>
  *   </tr>
  *   <tr>
  *     <td>expression</td>
@@ -130,12 +135,13 @@ class Parser {
     parserVar(expression())
 
   /**
-   * statement → ifStatement | printStmt | block | exprStmt ;
+   * statement → ifStatement | printStmt | block | whileStmt | exprStmt ;
    */
   def statement(): ParserGrammar[Stmt] = {
     case Token(IF, _, _, _)::tail         => ifStatement()(tail)
     case Token(PRINT, _, _, _)::tail      => printStmt()(tail)
     case Token(LEFT_BRACE, _, _, _)::tail => blockStmt()(tail)
+    case Token(WHILE, _, _, _)::tail      => whileStmt()(tail)
     case tokenList@_::_                   => exprStmt()(tokenList)
   }
 
@@ -152,16 +158,22 @@ class Parser {
     parserPrint(expression())
 
   /**
-   * exprStmt → expression ";";
-   */
-  def exprStmt(): ParserGrammar[Stmt] =
-    parserExpression(expression())
-
-  /**
    * block → "{" declaration* "}" ;
    */
   def blockStmt(): ParserGrammar[Stmt] =
     parserBlock(declaration())
+
+  /**
+   * whileStmt → "while" "(" expression ")" statement ;
+   */
+  def whileStmt(): ParserGrammar[Stmt] =
+    parserWhileStmt(expression(), statement())
+
+  /**
+   * exprStmt → expression ";";
+   */
+  def exprStmt(): ParserGrammar[Stmt] =
+    parserExpression(expression())
 
   /**
    * expression → assignment;

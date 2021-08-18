@@ -21,7 +21,7 @@ class InterVarTest extends AnyFunSuite with Matchers {
     val result: Environment = interVar(token, expr)(env)._2
 
     result.size shouldBe 1
-    result.get(token) shouldBe Right(Nil)
+    result.get(token.lexeme) shouldBe Right(Nil)
   }
 
   test("Interpreting var override value, should return last value") {
@@ -35,7 +35,7 @@ class InterVarTest extends AnyFunSuite with Matchers {
     val overrideResult: Environment = interVar(token, overrideExpr)(result)._2
 
     overrideResult.size shouldBe 1
-    overrideResult.get(token) shouldBe Right(2.0)
+    overrideResult.get(token.lexeme) shouldBe Right(2.0)
   }
 
   test("Interpreting var add multiples values, should return both values") {
@@ -50,8 +50,8 @@ class InterVarTest extends AnyFunSuite with Matchers {
     val bothValuesResult: Environment = interVar(secondToken, secondExpr)(result)._2
 
     bothValuesResult.size shouldBe 2
-    bothValuesResult.get(firstToken) shouldBe Right(Nil)
-    bothValuesResult.get(secondToken) shouldBe Right(2.0)
+    bothValuesResult.get(firstToken.lexeme) shouldBe Right(Nil)
+    bothValuesResult.get(secondToken.lexeme) shouldBe Right(2.0)
   }
 
   test("Interpreting var with error, should return error") {
