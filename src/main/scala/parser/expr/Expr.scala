@@ -12,6 +12,7 @@ object Expr {
 
 case class Assign(token: Token, expr: Expr) extends Expr
 case class Binary(left: Expr, operator: Token, right: Expr) extends Expr
+case class Call(funName: Expr, lastToken: Token, arguments: List[Expr]) extends Expr
 case class Grouping(expr: Expr) extends Expr
 case class Logical(left: Expr, token: Token, right: Expr) extends Expr
 case class Literal(value: Any) extends Expr

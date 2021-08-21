@@ -6,6 +6,7 @@ import lexer._
 import parser.expr.Expr
 import parser.expr.ParserAssignment.parserAssignment
 import parser.expr.ParserBinary.parserBinary
+import parser.expr.ParserCall.parserCall
 import parser.expr.ParserGrouping.parserGrouping
 import parser.expr.ParserLiteral.parserLiteral
 import parser.expr.ParserLogical.parserLogical
@@ -99,7 +100,15 @@ import util.Applicative.eitherApplicative
  *   </tr>
  *   <tr>
  *     <td>unary</td>
- *     <td>→ ( "!" | "-" ) unary | primary ;</td>
+ *     <td>→ ( "!" | "-" ) unary | call ;</td>
+ *   </tr>
+ *   <tr>
+ *     <td>call</td>
+ *     <td>→ primary ( "(" arguments? ")" )* ;</td>
+ *   </tr>
+ *   <tr>
+ *     <td>arguments</td>
+ *     <td>→ expression ( "," expression )* ;</td>
  *   </tr>
  *   <tr>
  *     <td>primary</td>
@@ -235,10 +244,25 @@ class Parser {
     parserBinary(unary(), Seq(SLASH, STAR))(unary)
 
   /**
-   * unary → ( "!" | "-" ) unary | primary ;
+   * unary → ( "!" | "-" ) unary | call ;
    */
   def unary(): ParserGrammar[Expr] =
-    parserUnary(Seq(BANG, MINUS))(unary, primary)
+    parserUnary(Seq(BANG, MINUS))(unary, call)
+
+  /**
+   * <table border="0">
+   *   <tr>
+   *     <td>call</td>
+   *     <td>→ primary ( "(" arguments? ")" )* ;</td>
+   *   </tr>
+   *   <tr>
+   *     <td>arguments</td>
+   *     <td>→ expression ( "," expression )* ;</td>
+   *   </tr>
+   * </table>
+   */
+  def call(): ParserGrammar[Expr] =
+    parserCall(primary(), expression())
 
   /**
    * primary → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
