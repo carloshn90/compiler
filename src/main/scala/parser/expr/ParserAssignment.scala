@@ -11,13 +11,14 @@ import parser.grammar.ParserGrammar.{ParserExprMonad, ParserGrammar, advance, un
 object ParserAssignment {
 
   def parserAssignment(parserExpr: ParserGrammar[Expr], types: Seq[TokenType])(f: () => ParserGrammar[Expr]): ParserGrammar[Expr] =
-    parserExpr.flatMap((left, leftTokenList) => assignment(left, types, leftTokenList.head)(f))
+    parserExpr.flatMap(left => assignment(left, types)(f))
 
-  private def assignment(left: GrammarResult[Expr], types: Seq[TokenType], token: Token)(f: () => ParserGrammar[Expr]): ParserGrammar[Expr] = {
+  private def assignment(left: GrammarResult[Expr], types: Seq[TokenType])(f: () => ParserGrammar[Expr]): ParserGrammar[Expr] = tokenList => {
+    val token = tokenList.head
     if (matchType(types, token)) {
       lazy val rightParserExpr = advance(f())
-      rightParserExpr.map((right, _) => left.flatMap2(right)((r, l) => createVariable(l, r)(token.line)))
-    } else unit(left)
+      rightParserExpr.map(right => left.flatMap2(right)((r, l) => createVariable(l, r)(token.line)))(tokenList)
+    } else unit(left)(tokenList)
   }
 
   def createVariable(left: Expr, right: Expr)(line: Int): GrammarResult[Expr] = right match {

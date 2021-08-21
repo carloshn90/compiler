@@ -27,7 +27,7 @@ object ParserIf {
 
   private def parserElseBranch(cond: GrammarResult[Expr], thenB: GrammarResult[Stmt], statement: ParserGrammar[Stmt]): ParserGrammar[Stmt] = tokenList => {
     val token = tokenList.head
-    if (token.tokenType == ELSE) statement.map((elseB, _) => createIf(cond, thenB, elseB))(tokenList.tail)
+    if (token.tokenType == ELSE) statement.map(elseB => createIf(cond, thenB, elseB))(tokenList.tail)
     else (createIf(cond, thenB), tokenList)
   }
 

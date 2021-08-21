@@ -9,13 +9,14 @@ import parser.grammar.ParserGrammar.{ParserExprMonad, ParserGrammar, advance, un
 object ParserBinary {
 
   def parserBinary(parserExpr: ParserGrammar[Expr], types: Seq[TokenType])(f: () => ParserGrammar[Expr]): ParserGrammar[Expr] =
-    parserExpr.flatMap((left, leftTokenList) => binary(left, types, leftTokenList.head)(f))
+    parserExpr.flatMap(left => binary(left, types)(f))
 
-  private def binary(left: GrammarResult[Expr], types: Seq[TokenType], token: Token)(f: () => ParserGrammar[Expr]): ParserGrammar[Expr] = {
+  private def binary(left: GrammarResult[Expr], types: Seq[TokenType])(f: () => ParserGrammar[Expr]): ParserGrammar[Expr] = tokenList => {
+    val token = tokenList.head
     if (matchType(types, token)) {
       lazy val rightParserExpr = advance(f())
-      rightParserExpr.flatMap((right, tokens) => binary(createBinary(left, right, token), types, tokens.head)(f))
-    } else unit(left)
+      rightParserExpr.flatMap(right => binary(createBinary(left, right, token), types)(f))(tokenList)
+    } else unit(left)(tokenList)
   }
 
   private def createBinary(left: GrammarResult[Expr], right: GrammarResult[Expr], token: Token): GrammarResult[Expr] =

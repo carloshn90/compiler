@@ -19,10 +19,10 @@ object ParserBlock {
   }
 
   private def block(parserStmt: ParserGrammar[Stmt], stmtList: List[Stmt]): ParserGrammar[Stmt] = parserStmt
-    .flatMap((stmt, _) => stmt match {
+    .flatMap {
       case Right(value) => parserBlock(parserStmt, stmtList :+ value)
       case Left(err)    => unit(Left(err))
-    })
+    }
 
   private def createBlock(token: Token, stmtList: List[Stmt]): ParserGrammar[Stmt] =
     if (token.tokenType != RIGHT_BRACE) unit(Left(ErrorCompiler(token.line - 1, "Expect '}' after block.")))

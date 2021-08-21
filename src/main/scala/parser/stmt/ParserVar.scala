@@ -3,7 +3,7 @@ package parser.stmt
 
 import error.ErrorCompiler
 import lexer.{EQUAL, IDENTIFIER, SEMICOLON, Token}
-import parser.expr.Expr
+import parser.expr.{Expr, Literal}
 import parser.grammar.GrammarResult.GrammarResult
 import parser.grammar.ParserGrammar.{ParserExprMonad, ParserGrammar, unit}
 import parser.stmt.ParserStmt.createSemicolonError
@@ -16,11 +16,11 @@ object ParserVar {
   }
 
   private def variable(parserExpr: ParserGrammar[Expr], identifier: Token): ParserGrammar[Stmt] =
-    initializerVar(parserExpr, identifier).flatMap((expr, _) => checkSemicolon(expr))
+    initializerVar(parserExpr, identifier).flatMap(checkSemicolon)
 
   private def initializerVar(parserExpr: ParserGrammar[Expr], identifier: Token): ParserGrammar[Stmt] = {
-    case Token(EQUAL, _, _, _)::tail  => parserExpr.map((left, _) => createVar(left, identifier))(tail)
-    case tokenList@_                  => unit(createVar(Right(null), identifier))(tokenList)
+    case Token(EQUAL, _, _, _)::tail  => parserExpr.map(left => createVar(left, identifier))(tail)
+    case tokenList@_                  => unit(createVar(Right(Literal("nil")), identifier))(tokenList)
   }
 
   private def createVar(left: GrammarResult[Expr], identifier: Token): GrammarResult[Stmt] =

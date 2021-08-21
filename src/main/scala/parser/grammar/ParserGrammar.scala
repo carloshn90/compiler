@@ -1,7 +1,8 @@
 package org.compiler.example
 package parser.grammar
 
-import lexer.Token
+import error.ErrorCompiler
+import lexer.{Token, TokenType}
 import parser.grammar.GrammarResult.GrammarResult
 
 object ParserGrammar {
@@ -17,19 +18,26 @@ object ParserGrammar {
 
   implicit class ParserExprMonad[A <: Grammar](val parserExpr: ParserGrammar[A]) {
 
-    def map[B <: Grammar](f: (GrammarResult[A], List[Token]) => GrammarResult[B]): ParserGrammar[B] =
-      parserExpr.flatMap((a, tokens) => unit(f(a, tokens)))
+    def map[B <: Grammar](f: GrammarResult[A] => GrammarResult[B]): ParserGrammar[B] =
+      parserExpr.flatMap(a => unit(f(a)))
 
-    def flatMap[B <: Grammar](f: (GrammarResult[A], List[Token]) => ParserGrammar[B]): ParserGrammar[B] = tokenList => {
+    def flatMap[B <: Grammar](f: GrammarResult[A] => ParserGrammar[B]): ParserGrammar[B] = tokenList => {
       parserExpr(tokenList) match {
-        case (Right(expr), tokens) => f(Right(expr), tokens)(tokens)
+        case (Right(expr), tokens) => f(Right(expr))(tokens)
         case (Left(err), tokens)   => (Left(err), tokens)
       }
     }
     def map2[B <:Grammar, C <: Grammar](right: ParserGrammar[B])(f: (GrammarResult[A], GrammarResult[B]) => GrammarResult[C]): ParserGrammar[C] =
-      parserExpr.flatMap((l, _) => right.map((r, _) => f(l, r)))
+      parserExpr.flatMap(l => right.map(r => f(l, r)))
 
     def flatMap2[B <:Grammar, C <: Grammar](right: ParserGrammar[B])(f: (GrammarResult[A], GrammarResult[B]) => ParserGrammar[C]): ParserGrammar[C] =
-      parserExpr.flatMap((l, _) => right.flatMap((r, _) => f(l, r)))
+      parserExpr.flatMap(l => right.flatMap(r => f(l, r)))
+
+    def consume(tokenType: TokenType, error: String): ParserGrammar[A] = tokenList => {
+      val (result, tokens) = parserExpr(tokenList)
+      val token: Token = tokens.head
+      if (token.tokenType != tokenType) unit(Left(ErrorCompiler(token.line, error)))(tokens)
+      else (result, tokens.tail)
+    }
   }
 }

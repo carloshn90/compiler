@@ -6,12 +6,12 @@ import lexer.{EOF, LEFT_PAREN, PRINT, RIGHT_PAREN, SEMICOLON, STRING, TRUE, Toke
 import parser.Parser
 import parser.expr.Literal
 import parser.grammar.GrammarResult.GrammarResult
-import parser.stmt.ParserWhileStmt.parserWhileStmt
+import parser.stmt.ParserWhile.parserWhileStmt
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
-class ParserWhileStmtTest extends AnyFunSuite with Matchers {
+class ParserWhileTest extends AnyFunSuite with Matchers {
 
   test("Parsing a while statement, should return a while statement") {
 

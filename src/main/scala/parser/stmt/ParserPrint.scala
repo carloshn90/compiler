@@ -10,7 +10,7 @@ import parser.stmt.ParserStmt.createSemicolonError
 object ParserPrint {
 
   def parserPrint(parserExpr: ParserGrammar[Expr]): ParserGrammar[Stmt] =
-    parserExpr.flatMap((left, _) => print(left))
+    parserExpr.flatMap(print)
 
   private def print(left: GrammarResult[Expr]): ParserGrammar[Stmt] = {
     case tokenList@Token(SEMICOLON, _, _, _)::_ => unit(createPrint(left))(tokenList.tail)

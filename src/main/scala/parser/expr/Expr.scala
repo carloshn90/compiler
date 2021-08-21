@@ -6,6 +6,10 @@ import parser.grammar.Grammar
 
 sealed trait Expr extends Grammar
 
+object Expr {
+  case object None extends Expr
+}
+
 case class Assign(token: Token, expr: Expr) extends Expr
 case class Binary(left: Expr, operator: Token, right: Expr) extends Expr
 case class Grouping(expr: Expr) extends Expr

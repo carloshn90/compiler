@@ -14,7 +14,7 @@ object ParserUnary {
   private def unary(types: Seq[TokenType], token: Token)(f: () => ParserGrammar[Expr], g: () => ParserGrammar[Expr]): ParserGrammar[Expr] = {
     if (matchType(types, token)) {
       lazy val rightParserExpr = advance(f())
-      rightParserExpr.flatMap((right, _) => createUnary(right, token))
+      rightParserExpr.flatMap(right => createUnary(right, token))
     } else g()
   }
 

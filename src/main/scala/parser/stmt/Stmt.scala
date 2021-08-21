@@ -7,6 +7,10 @@ import parser.grammar.Grammar
 
 sealed trait Stmt extends Grammar
 
+object Stmt {
+  case object None extends Stmt
+}
+
 case class Block(statements: List[Stmt]) extends Stmt
 case class Expression(expr: Expr) extends Stmt
 case class If(condition: Expr, thenBranch: Stmt, elseBranch: Option[Stmt]) extends Stmt

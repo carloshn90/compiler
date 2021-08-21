@@ -43,7 +43,7 @@ class ParserVarTest extends AnyFunSuite with Matchers {
     val (grammarResult: GrammarResult[Stmt], tokenListResult: List[Token]) = parserVar(errorParserExpr())(tokenList)
 
     tokenListResult should have size 1
-    grammarResult shouldBe Right(Var(identifierToken, null))
+    grammarResult shouldBe Right(Var(identifierToken, Literal("nil")))
   }
 
   test("Parsing a var statement with wrong expression, should return error") {

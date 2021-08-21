@@ -15,10 +15,11 @@ import parser.grammar.GrammarResult.GrammarResult
 import parser.grammar.ParserGrammar.{ParserGrammar, unit}
 import parser.stmt.ParserBlock.parserBlock
 import parser.stmt.ParserExpression.parserExpression
+import parser.stmt.ParserFor.parserFor
 import parser.stmt.ParserIf.parserIf
 import parser.stmt.ParserPrint.parserPrint
 import parser.stmt.ParserVar.parserVar
-import parser.stmt.ParserWhileStmt.parserWhileStmt
+import parser.stmt.ParserWhile.parserWhileStmt
 import parser.stmt.Stmt
 import util.Applicative.eitherApplicative
 
@@ -38,7 +39,11 @@ import util.Applicative.eitherApplicative
  *   </tr>
  *   <tr>
  *     <td>statement</td>
- *     <td>→ ifStatement | printStmt | block | whileStmt | exprStmt;</td>
+ *     <td>→ forStmt | ifStatement | printStmt | block | whileStmt | exprStmt ;</td>
+ *   </tr>
+ *   <tr>
+ *     <td>forStmt</td>
+ *     <td>→ "for" "(" ( varDecl | exprStmt | ";" ) expression? ";" expression? ")" statement ;</td>
  *   </tr>
  *   <tr>
  *     <td>ifStatement</td>
@@ -138,12 +143,19 @@ class Parser {
    * statement → ifStatement | printStmt | block | whileStmt | exprStmt ;
    */
   def statement(): ParserGrammar[Stmt] = {
+    case Token(FOR, _, _, _)::tail        => forStmt()(tail)
     case Token(IF, _, _, _)::tail         => ifStatement()(tail)
     case Token(PRINT, _, _, _)::tail      => printStmt()(tail)
     case Token(LEFT_BRACE, _, _, _)::tail => blockStmt()(tail)
     case Token(WHILE, _, _, _)::tail      => whileStmt()(tail)
     case tokenList@_::_                   => exprStmt()(tokenList)
   }
+
+  /**
+   * forStmt → "for" "(" ( varDecl | exprStmt | ";" ) expression? ";" expression? ")" statement ;
+   */
+  def forStmt(): ParserGrammar[Stmt] =
+    parserFor(varDecl(), exprStmt(), expression(), statement())
 
   /**
    * ifStatement → "if" "(" expression ")" statement ("else" statement)? ;
