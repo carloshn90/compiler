@@ -9,9 +9,10 @@ import parser.grammar.ParserGrammar.{ParserExprMonad, ParserGrammar, unit}
 
 object ParserWhile {
 
-  def parserWhileStmt(expression: ParserGrammar[Expr], statement: ParserGrammar[Stmt]): ParserGrammar[Stmt] =
-    parserCondition(expression)
-    .flatMap(cond => parserBody(statement).map(body => createWhile(cond, body)))
+  def parserWhileStmt(expression: ParserGrammar[Expr], statement: ParserGrammar[Stmt]): ParserGrammar[Stmt] = for {
+    cond <- parserCondition(expression)
+    body <- parserBody(statement)
+  } yield createWhile(cond, body)
 
   private def parserCondition(expression: ParserGrammar[Expr]): ParserGrammar[Expr] = tokenList => {
     val token = tokenList.head
