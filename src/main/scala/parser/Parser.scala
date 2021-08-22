@@ -17,6 +17,7 @@ import parser.grammar.ParserGrammar.{ParserGrammar, unit}
 import parser.stmt.ParserBlock.parserBlock
 import parser.stmt.ParserExpression.parserExpression
 import parser.stmt.ParserFor.parserFor
+import parser.stmt.ParserFunction.parserFunction
 import parser.stmt.ParserIf.parserIf
 import parser.stmt.ParserPrint.parserPrint
 import parser.stmt.ParserVar.parserVar
@@ -32,7 +33,11 @@ import util.Applicative.eitherApplicative
  *   </tr>
  *   <tr>
  *     <td>declaration</td>
- *     <td>→ varDecl | statement ;</td>
+ *     <td>→ funDecl | varDecl | statement ;</td>
+ *   </tr>
+ *   <tr>
+ *     <td>funDecl</td>
+ *     <td>→ "fun" IDENTIFIER "(" parameters? ")" block ;</td>
  *   </tr>
  *   <tr>
  *     <td>varDecl</td>
@@ -138,9 +143,16 @@ class Parser {
    * declaration → varDecl | statement ;
    */
   def declaration(): ParserGrammar[Stmt] = {
+    case Token(FUN, _, _, _)::tail  => funDecl()(tail)
     case Token(VAR, _, _, _)::tail  => varDecl()(tail)
     case tokenList@_::_             => statement()(tokenList)
   }
+
+  /**
+   * funDecl → "fun" IDENTIFIER "(" parameters? ")" block ;
+   */
+  def funDecl(): ParserGrammar[Stmt] =
+    parserFunction(blockStmt())
 
   /**
    * varDecl → "var" IDENTIFIER ( "=" expression )? ";" ;
