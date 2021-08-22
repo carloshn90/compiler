@@ -20,7 +20,7 @@ object ParserVar {
 
   private def initializerVar(parserExpr: ParserGrammar[Expr], identifier: Token): ParserGrammar[Stmt] = {
     case Token(EQUAL, _, _, _)::tail  => parserExpr.map(left => createVar(left, identifier))(tail)
-    case tokenList@_                  => unit(createVar(Right(Literal("nil")), identifier))(tokenList)
+    case tokenList@_                  => unit(createVar(Right(Literal(Nil)), identifier))(tokenList)
   }
 
   private def createVar(left: GrammarResult[Expr], identifier: Token): GrammarResult[Stmt] =
