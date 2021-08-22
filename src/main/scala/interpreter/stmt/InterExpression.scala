@@ -7,5 +7,8 @@ import parser.expr.Expr
 
 object InterExpression {
 
-  def interExpression(expr: Expr): InterResult[Option[String]] = evaluate(expr).map(_ => None)
+  def interExpression(expr: Expr): InterResult[List[String]] = evaluate(expr).map {
+    case strList: List[String]  => strList
+    case _                      => List()
+  }
 }

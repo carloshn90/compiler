@@ -17,7 +17,9 @@ class InterBinaryTest extends AnyFunSuite with Matchers {
   private val binaryCases: Seq[BinaryCase] = Seq(
     BinaryCase(1.14, Token(PLUS, "+", 0, None), 2.28, Right(3.42)),
     BinaryCase("Hello ", Token(PLUS, "+", 0, None), "world", Right("Hello world")),
-    BinaryCase("Hello", Token(PLUS, "+", 0, None), 2.0, Left(ErrorCompiler(0, s"It isn't possible to add these values: Hello + 2.0"))),
+    BinaryCase(2.0, Token(PLUS, "+", 0, None), " World", Right("2.0 World")),
+    BinaryCase("Hello ", Token(PLUS, "+", 0, None), 2.0, Right("Hello 2.0")),
+    BinaryCase("Hello", Token(PLUS, "+", 0, None), List(2.0), Left(ErrorCompiler(0, s"It isn't possible to add these values: Hello + List(2.0)"))),
     BinaryCase(6.0, Token(SLASH, "/", 0, None), 2.0, Right(3.0)),
     BinaryCase(3.0, Token(SLASH, "/", 0, None), 0.0, Right(Double.PositiveInfinity)),
     BinaryCase(6.0, Token(STAR, "*", 0, None), 2.0, Right(12.0)),

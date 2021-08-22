@@ -37,7 +37,7 @@ object ParserFunction {
     case Token(COMMA, _, _, _)::tail                            => getParameters(tail, parameters)
     case Token(IDENTIFIER, lexeme, line, literal)::tail         => getParameters(tail, parameters :+ Token(IDENTIFIER, lexeme, line, literal))
     case Token(RIGHT_PAREN, _, _, _)::tail                      => (Right(parameters), tail)
-    case Token(_, _, line, _)::tail                             => (Left(ErrorCompiler(line, "Expect ')' after parameters.")), tail)
+    case tokenList@Token(_, _, line, _)::_                      => (Left(ErrorCompiler(line, "Expect ')' after parameters.")), tokenList)
   }
 
   private def parserBody(block: ParserGrammar[Stmt]): ParserGrammar[Block] = tokenList => {

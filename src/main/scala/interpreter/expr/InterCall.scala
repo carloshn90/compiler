@@ -24,7 +24,7 @@ object InterCall {
 
   private def callFunction(function: Any, token: Token, args: List[Any]): InterResult[Any] = function match {
     case fun: Callable if fun.argumentSize != args.size => unit(Left(ErrorCompiler(token.line, s"Expected ${fun.argumentSize} arguments but got ${args.size}.")))
-    case fun: Callable                                  => unit(fun.call(args).left.map(err => ErrorCompiler(token.line, err)))
+    case fun: Callable                                  => unit(fun.call(args))
     case _                                              => unit(Left(ErrorCompiler(token.line, "Invalid function type")))
   }
 }

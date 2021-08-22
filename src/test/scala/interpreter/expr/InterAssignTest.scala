@@ -40,13 +40,13 @@ class InterAssignTest extends AnyFunSuite with Matchers {
   test("Interpreting assign variable error evaluating expression, should return error") {
 
     val varName: Token = Token(IDENTIFIER, "var name", 10, Some("var name"))
-    val wrongExpr: Expr =  Binary(Literal("hello"), Token(PLUS, "+", 3, None), Literal(2.0))
+    val wrongExpr: Expr =  Binary(Literal("hello"), Token(PLUS, "+", 3, None), Literal(List(2.0)))
     val env: Environment = new Environment()
 
     val (resultValue: Either[ErrorCompiler, Any], resultEnv: Environment) = interAssign(varName, wrongExpr)(env)
 
     resultEnv.size shouldBe 0
-    resultValue shouldBe Left(ErrorCompiler(3, s"It isn't possible to add these values: hello + 2.0"))
+    resultValue shouldBe Left(ErrorCompiler(3, s"It isn't possible to add these values: hello + List(2.0)"))
   }
 
 }

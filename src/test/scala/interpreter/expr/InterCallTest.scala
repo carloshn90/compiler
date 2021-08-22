@@ -16,15 +16,16 @@ class TestCaller extends Callable {
 
   override def argumentSize: Int = 3
 
-  override def call(arguments: List[Any]): Either[String, Any] = {
-    val init: Either[String, Double] = Right(0d)
-    arguments.foldRight(init)((h: Any, t: Either[String, Double]) => t.flatMap(tt => addArguments(h, tt)))
+  override def call(arguments: List[Any]): Either[ErrorCompiler, List[String]] = {
+    val init: Either[ErrorCompiler, Double] = Right(0d)
+    arguments.foldRight(init)((h: Any, t: Either[ErrorCompiler,Double]) => t.flatMap(tt => addArguments(h, tt)))
+      .map(r => List(r.toString))
   }
 
-  private def addArguments(arg: Any, carry: Double): Either[String, Double] = try {
+  private def addArguments(arg: Any, carry: Double): Either[ErrorCompiler, Double] = try {
     Right(arg.toString.toDouble + carry)
   } catch {
-    case e: Throwable => Left(e.getMessage)
+    case e: Throwable => Left(ErrorCompiler(-1, e.getMessage))
   }
 }
 
@@ -79,7 +80,7 @@ class InterCallTest extends AnyFunSuite with Matchers {
     val (resultValue: Either[ErrorCompiler, Any], resultEnv: Environment) = interCall(funExpr, token, arguments)(env)
 
     resultEnv.size shouldBe 1
-    resultValue shouldBe Right(10)
+    resultValue shouldBe Right(List("10.0"))
   }
 
   test("Interpreting call function error inside function, should return error") {
@@ -92,6 +93,6 @@ class InterCallTest extends AnyFunSuite with Matchers {
     val (resultValue: Either[ErrorCompiler, Any], resultEnv: Environment) = interCall(funExpr, token, arguments)(env)
 
     resultEnv.size shouldBe 1
-    resultValue shouldBe Left(ErrorCompiler(1, "For input string: \"hello\""))
+    resultValue shouldBe Left(ErrorCompiler(-1, "For input string: \"hello\""))
   }
 }

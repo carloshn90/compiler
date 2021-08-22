@@ -39,6 +39,8 @@ object InterBinary {
   private def addValues(left: Any, right: Any)(implicit line: Int): InterResult[Any] = (left, right) match {
     case (l: String, r: String) => unit(Right(l + r))
     case (l: Double, r: Double) => unit(Right(l + r))
+    case (l: Double, r: String) => unit(Right(l.toString + r))
+    case (l: String, r: Double) => unit(Right(l + r.toString))
     case _                      => unit(Left(ErrorCompiler(line, s"It isn't possible to add these values: $left + $right")))
   }
 

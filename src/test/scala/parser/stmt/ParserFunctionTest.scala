@@ -82,7 +82,7 @@ class ParserFunctionTest extends AnyFunSuite with Matchers {
     val parser: Parser = new Parser()
     val (grammarResult: GrammarResult[Stmt], tokenListResult: List[Token]) = parserFunction(parser.blockStmt())(tokenList)
 
-    tokenListResult should have size 2
+    tokenListResult should have size 1
     grammarResult shouldBe Left(ErrorCompiler(2, "Expect ')' after parameters."))
   }
 
