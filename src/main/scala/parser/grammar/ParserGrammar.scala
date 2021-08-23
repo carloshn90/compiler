@@ -36,8 +36,11 @@ object ParserGrammar {
     def consume(tokenType: TokenType, error: String): ParserGrammar[A] = tokenList => {
       val (result, tokens) = parserExpr(tokenList)
       val token: Token = tokens.head
-      if (token.tokenType != tokenType) unit(Left(ErrorCompiler(token.line, error)))(tokens)
-      else (result, tokens.tail)
+      result match {
+        case Left(err)                                => unit(Left(err))(tokens)
+        case Right(_) if token.tokenType != tokenType => unit(Left(ErrorCompiler(token.line, error)))(tokens)
+        case Right(value)                             => (Right(value), tokens.tail)
+      }
     }
   }
 }

@@ -20,6 +20,7 @@ import parser.stmt.ParserFor.parserFor
 import parser.stmt.ParserFunction.parserFunction
 import parser.stmt.ParserIf.parserIf
 import parser.stmt.ParserPrint.parserPrint
+import parser.stmt.ParserReturn.parserReturn
 import parser.stmt.ParserVar.parserVar
 import parser.stmt.ParserWhile.parserWhileStmt
 import parser.stmt.Stmt
@@ -45,7 +46,11 @@ import util.Applicative.eitherApplicative
  *   </tr>
  *   <tr>
  *     <td>statement</td>
- *     <td>→ forStmt | ifStatement | printStmt | block | whileStmt | exprStmt ;</td>
+ *     <td>→ forStmt | ifStatement | printStmt | block | returnStmt | whileStmt | exprStmt ;</td>
+ *   </tr>
+ *   <tr>
+ *     <td>returnStmt</td>
+ *     <td>→ "return" expression? ";" ;</td>
  *   </tr>
  *   <tr>
  *     <td>forStmt</td>
@@ -161,15 +166,16 @@ class Parser {
     parserVar(expression())
 
   /**
-   * statement → ifStatement | printStmt | block | whileStmt | exprStmt ;
+   * statement → ifStatement | printStmt | returnStmt | block | whileStmt | exprStmt ;
    */
   def statement(): ParserGrammar[Stmt] = {
-    case Token(FOR, _, _, _)::tail        => forStmt()(tail)
-    case Token(IF, _, _, _)::tail         => ifStatement()(tail)
-    case Token(PRINT, _, _, _)::tail      => printStmt()(tail)
-    case Token(LEFT_BRACE, _, _, _)::tail => blockStmt()(tail)
-    case Token(WHILE, _, _, _)::tail      => whileStmt()(tail)
-    case tokenList@_::_                   => exprStmt()(tokenList)
+    case Token(FOR, _, _, _)::tail            => forStmt()(tail)
+    case Token(IF, _, _, _)::tail             => ifStatement()(tail)
+    case Token(PRINT, _, _, _)::tail          => printStmt()(tail)
+    case tokenList@Token(RETURN, _, _, _)::_  => returnStmt()(tokenList)
+    case Token(LEFT_BRACE, _, _, _)::tail     => blockStmt()(tail)
+    case Token(WHILE, _, _, _)::tail          => whileStmt()(tail)
+    case tokenList@_::_                       => exprStmt()(tokenList)
   }
 
   /**
@@ -189,6 +195,12 @@ class Parser {
    */
   def printStmt(): ParserGrammar[Stmt] =
     parserPrint(expression())
+
+  /**
+   * returnStmt → "return" expression? ";" ;
+   */
+  def returnStmt(): ParserGrammar[Stmt] =
+    parserReturn(expression())
 
   /**
    * block → "{" declaration* "}" ;
