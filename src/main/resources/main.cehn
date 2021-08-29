@@ -1,8 +1,8 @@
-fun sayHi(first, last) {
-  var line = 1;
-  print "Hi, " + first + " " + last + "!, line: " + line;
-  line = line + 1;
-  print "Bye, " + first + " " + last + "!, line: " + line;
+fun fibonacci(n) {
+  if (n <= 1) return n;
+  return fibonacci(n - 2) + fibonacci(n - 1);
 }
 
-sayHi("Dear", "Reader");
+for (var i = 0; i < 20; i = i + 1) {
+  print fibonacci(i);
+}
