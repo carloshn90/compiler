@@ -2,8 +2,8 @@ package org.compiler.example
 package interpreter.stmt
 
 import error.ErrorCompiler
-import interpreter.Environment
 import interpreter.stmt.InterIf.interIf
+import interpreter.{Environment, InterpreterState, Result}
 import lexer.{IDENTIFIER, Token}
 import parser.expr.{Expr, Literal, Variable}
 import parser.stmt.{Print, Stmt}
@@ -19,9 +19,9 @@ class InterIfTest extends AnyFunSuite with Matchers {
     val thenBranch: Stmt = Print(Literal("print"))
     val elseBranch: Option[Stmt] = None
 
-    val result: Either[ErrorCompiler, List[String]] = interIf(condition, thenBranch, elseBranch)(new Environment())._1
+    val result: Either[ErrorCompiler, Result] = interIf(condition, thenBranch, elseBranch)(new Environment())._1
 
-    result shouldBe Right(List("print"))
+    result shouldBe Right(InterpreterState(List("print"), None))
   }
 
   test("Interpreting if statement false, shouldn't print value") {
@@ -30,9 +30,9 @@ class InterIfTest extends AnyFunSuite with Matchers {
     val thenBranch: Stmt = Print(Literal("print"))
     val elseBranch: Option[Stmt] = None
 
-    val result: Either[ErrorCompiler, List[String]] = interIf(condition, thenBranch, elseBranch)(new Environment())._1
+    val result: Either[ErrorCompiler, Result] = interIf(condition, thenBranch, elseBranch)(new Environment())._1
 
-    result shouldBe Right(List())
+    result shouldBe Right(InterpreterState(List(), None))
   }
 
   test("Interpreting if-else statement true, should print if value") {
@@ -41,9 +41,9 @@ class InterIfTest extends AnyFunSuite with Matchers {
     val thenBranch: Stmt = Print(Literal("print if"))
     val elseBranch: Option[Stmt] = Some(Print(Literal("print else")))
 
-    val result: Either[ErrorCompiler, List[String]] = interIf(condition, thenBranch, elseBranch)(new Environment())._1
+    val result: Either[ErrorCompiler, Result] = interIf(condition, thenBranch, elseBranch)(new Environment())._1
 
-    result shouldBe Right(List("print if"))
+    result shouldBe Right(InterpreterState(List("print if"), None))
   }
 
   test("Interpreting if-else statement false, should print else value") {
@@ -52,9 +52,9 @@ class InterIfTest extends AnyFunSuite with Matchers {
     val thenBranch: Stmt = Print(Literal("print if"))
     val elseBranch: Option[Stmt] = Some(Print(Literal("print else")))
 
-    val result: Either[ErrorCompiler, List[String]] = interIf(condition, thenBranch, elseBranch)(new Environment())._1
+    val result: Either[ErrorCompiler, Result] = interIf(condition, thenBranch, elseBranch)(new Environment())._1
 
-    result shouldBe Right(List("print else"))
+    result shouldBe Right(InterpreterState(List("print else"), None))
   }
 
   test("Interpreting if-else error in condition, should return error") {
@@ -63,7 +63,7 @@ class InterIfTest extends AnyFunSuite with Matchers {
     val thenBranch: Stmt = Print(Literal("print if"))
     val elseBranch: Option[Stmt] = Some(Print(Literal("print else")))
 
-    val result: Either[ErrorCompiler, List[String]] = interIf(condition, thenBranch, elseBranch)(new Environment())._1
+    val result: Either[ErrorCompiler, Result] = interIf(condition, thenBranch, elseBranch)(new Environment())._1
 
     result shouldBe Left(ErrorCompiler(1, "Undefined variable 'a'."))
   }
@@ -74,9 +74,9 @@ class InterIfTest extends AnyFunSuite with Matchers {
     val thenBranch: Stmt = Print(Literal("print if"))
     val elseBranch: Option[Stmt] = Some(Print(Variable(Token(IDENTIFIER, "a", 1, Some("a")))))
 
-    val result: Either[ErrorCompiler, List[String]] = interIf(condition, thenBranch, elseBranch)(new Environment())._1
+    val result: Either[ErrorCompiler, Result] = interIf(condition, thenBranch, elseBranch)(new Environment())._1
 
-    result shouldBe Right(List("print if"))
+    result shouldBe Right(InterpreterState(List("print if"), None))
   }
 
   test("Interpreting if-else error in then branch, should return error") {
@@ -85,7 +85,7 @@ class InterIfTest extends AnyFunSuite with Matchers {
     val thenBranch: Stmt = Print(Variable(Token(IDENTIFIER, "a", 1, Some("a"))))
     val elseBranch: Option[Stmt] = Some(Print(Literal("print else")))
 
-    val result: Either[ErrorCompiler, List[String]] = interIf(condition, thenBranch, elseBranch)(new Environment())._1
+    val result: Either[ErrorCompiler, Result] = interIf(condition, thenBranch, elseBranch)(new Environment())._1
 
     result shouldBe Left(ErrorCompiler(1, "Undefined variable 'a'."))
   }
@@ -96,9 +96,9 @@ class InterIfTest extends AnyFunSuite with Matchers {
     val thenBranch: Stmt = Print(Variable(Token(IDENTIFIER, "a", 1, Some("a"))))
     val elseBranch: Option[Stmt] = Some(Print(Literal("print else")))
 
-    val result: Either[ErrorCompiler, List[String]] = interIf(condition, thenBranch, elseBranch)(new Environment())._1
+    val result: Either[ErrorCompiler, Result] = interIf(condition, thenBranch, elseBranch)(new Environment())._1
 
-    result shouldBe Right(List("print else"))
+    result shouldBe Right(InterpreterState(List("print else"), None))
   }
 
   test("Interpreting if-else error in else branch, should return error") {
@@ -107,7 +107,7 @@ class InterIfTest extends AnyFunSuite with Matchers {
     val thenBranch: Stmt = Print(Literal("print if"))
     val elseBranch: Option[Stmt] = Some(Print(Variable(Token(IDENTIFIER, "a", 1, Some("a")))))
 
-    val result: Either[ErrorCompiler, List[String]] = interIf(condition, thenBranch, elseBranch)(new Environment())._1
+    val result: Either[ErrorCompiler, Result] = interIf(condition, thenBranch, elseBranch)(new Environment())._1
 
     result shouldBe Left(ErrorCompiler(1, "Undefined variable 'a'."))
   }

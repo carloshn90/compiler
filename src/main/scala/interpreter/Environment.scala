@@ -12,9 +12,9 @@ class Environment(global: Option[Environment] = None, values: Map[String, Any] =
     .map(_ => new Environment(assignGlobal(name, value), values))
     .orElse(assignLocal(name, value))
 
-  def get(name: String): Either[String, Any] = getGlobal(name) match {
-    case Some(v) => Right(v)
-    case _       => getLocal(name)
+  def get(name: String): Either[String, Any] = getLocal(name) match {
+    case Right(v) => Right(v)
+    case _        => getGlobal(name).toRight(s"Undefined variable '$name'.")
   }
 
   def restore(): Environment =

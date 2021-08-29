@@ -10,10 +10,10 @@ import cats.implicits.catsSyntaxApply
 
 class Interpreter {
 
-  def interpreter(stmtList: List[Stmt], result: Either[ErrorCompiler, List[String]]): InterResult[List[String]] = env => stmtList match {
-    case List() =>  unit(result)(env)
+  def interpreter(stmtList: List[Stmt], carryResult: Either[ErrorCompiler, List[String]]): InterResult[List[String]] = env => stmtList match {
+    case List() =>  unit(carryResult)(env)
     case h::t   =>
-      val (r, e) = execute(h)(env)
-      interpreter(t, r.map2(result)(_:::_))(e)
+      val (result, e) = execute(h)(env)
+      interpreter(t, result.map2(carryResult)((r, carry) => r.printList:::carry))(e)
   }
 }

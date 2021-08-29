@@ -2,6 +2,7 @@ package org.compiler.example
 package interpreter.expr
 
 import interpreter.InterResult.InterResult
+import interpreter.Result
 import interpreter.expr.InterAssign.interAssign
 import interpreter.expr.InterBinary.interBinary
 import interpreter.expr.InterCall.interCall
@@ -15,7 +16,7 @@ import parser.expr.{Assign, Binary, Call, Expr, Grouping, Literal, Logical, Unar
 
 object InterExpr {
 
-  def evaluate(expr: Expr): InterResult[Any] = expr match {
+  def evaluate(expr: Expr): InterResult[Result] = expr match {
     case Binary(left, operator, right)              => interBinary(left, operator, right)
     case Call(funName, lastToken: Token, arguments) => interCall(funName, lastToken, arguments)
     case Grouping(expr)                             => interGrouping(expr)

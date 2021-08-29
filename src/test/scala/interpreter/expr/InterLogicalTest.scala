@@ -2,8 +2,8 @@ package org.compiler.example
 package interpreter.expr
 
 import error.ErrorCompiler
-import interpreter.Environment
 import interpreter.expr.InterLogical.interLogical
+import interpreter.{Environment, InterpreterState, Result}
 import lexer.{AND, IDENTIFIER, OR, Token}
 import parser.expr.{Expr, Literal, Variable}
 
@@ -30,9 +30,9 @@ class InterLogicalTest extends AnyFunSuite with Matchers {
       val right: Expr = Literal(rightValue)
       val env: Environment = new Environment()
 
-      val result: Either[ErrorCompiler, Any] = interLogical(left, operator, right)(env)._1
+      val result: Either[ErrorCompiler, Result] = interLogical(left, operator, right)(env)._1
 
-      result shouldBe Right(expected)
+      result shouldBe Right(InterpreterState(List(), Some(expected)))
     }
   }
 
@@ -42,7 +42,7 @@ class InterLogicalTest extends AnyFunSuite with Matchers {
     val right: Expr = Literal(true)
     val env: Environment = new Environment()
 
-    val result: Either[ErrorCompiler, Any] = interLogical(left, operator, right)(env)._1
+    val result: Either[ErrorCompiler, Result] = interLogical(left, operator, right)(env)._1
 
     result shouldBe Left(ErrorCompiler(1, "Undefined variable 'a'."))
   }
@@ -53,7 +53,7 @@ class InterLogicalTest extends AnyFunSuite with Matchers {
     val right: Expr = Variable(Token(IDENTIFIER, "a", 1, Some("a")))
     val env: Environment = new Environment()
 
-    val result: Either[ErrorCompiler, Any] = interLogical(left, operator, right)(env)._1
+    val result: Either[ErrorCompiler, Result] = interLogical(left, operator, right)(env)._1
 
     result shouldBe Left(ErrorCompiler(1, "Undefined variable 'a'."))
   }
@@ -64,9 +64,9 @@ class InterLogicalTest extends AnyFunSuite with Matchers {
     val right: Expr = Variable(Token(IDENTIFIER, "a", 1, Some("a")))
     val env: Environment = new Environment()
 
-    val result: Either[ErrorCompiler, Any] = interLogical(left, operator, right)(env)._1
+    val result: Either[ErrorCompiler, Result] = interLogical(left, operator, right)(env)._1
 
-    result shouldBe Right(false)
+    result shouldBe Right(InterpreterState(List(), Some(false)))
   }
 
   test("Or no execute right expression, should return left value") {
@@ -75,8 +75,8 @@ class InterLogicalTest extends AnyFunSuite with Matchers {
     val right: Expr = Variable(Token(IDENTIFIER, "a", 1, Some("a")))
     val env: Environment = new Environment()
 
-    val result: Either[ErrorCompiler, Any] = interLogical(left, operator, right)(env)._1
+    val result: Either[ErrorCompiler, Result] = interLogical(left, operator, right)(env)._1
 
-    result shouldBe Right(true)
+    result shouldBe Right(InterpreterState(List(), Some(true)))
   }
 }

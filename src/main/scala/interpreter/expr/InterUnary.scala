@@ -1,18 +1,22 @@
 package org.compiler.example
 package interpreter.expr
 
-import interpreter.InterResult.{InterResult, InterResultMonad}
+import interpreter.InterResult.{InterResult, InterResultMonad, map}
+import interpreter.Result
 import interpreter.expr.InterExpr.evaluate
-import interpreter.util.Converter.{convertToDouble, isTruthy}
+import interpreter.util.Converter.convertToDouble
+import interpreter.util.Logical.isTruthy
 import lexer.{BANG, MINUS, Token}
 import parser.expr.Expr
 
 object InterUnary {
 
-  def interUnary(token: Token, rightExpr: Expr): InterResult[Any] = {
+  def interUnary(token: Token, rightExpr: Expr): InterResult[Result] =
+    map(evaluate(rightExpr))(value => interUnaryValue(token, value))
+
+  private def interUnaryValue(token: Token, rightValue: InterResult[Any]): InterResult[Any] = {
 
     implicit val line: Int = token.line
-    val rightValue = evaluate(rightExpr)
 
     token.tokenType match {
       case MINUS  => minusExpr(rightValue)

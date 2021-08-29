@@ -2,7 +2,8 @@ package org.compiler.example
 package interpreter.expr
 
 import error.ErrorCompiler
-import interpreter.InterResult.{InterResult, InterResultMonad, unit}
+import interpreter.InterResult.{InterResult, InterResultMonad, map2, unit}
+import interpreter.Result
 import interpreter.expr.InterExpr.evaluate
 import interpreter.util.Converter.convertToDouble
 import lexer.{BANG_EQUAL, EQUAL_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL, MINUS, PLUS, SLASH, STAR, Token}
@@ -10,10 +11,11 @@ import parser.expr.Expr
 
 object InterBinary {
 
-  def interBinary(leftExpr: Expr, token: Token, rightExpr: Expr): InterResult[Any] = {
+  def interBinary(leftExpr: Expr, token: Token, rightExpr: Expr): InterResult[Result] =
+    map2(evaluate(leftExpr), evaluate(rightExpr))((l, r) => interBinaryValue(l, token, r))
 
-    val leftValue: InterResult[Any] = evaluate(leftExpr)
-    val rightValue: InterResult[Any] = evaluate(rightExpr)
+  def interBinaryValue(leftValue: InterResult[Any], token: Token, rightValue: InterResult[Any]): InterResult[Any] = {
+
     implicit val line: Int = token.line
 
     token.tokenType match {

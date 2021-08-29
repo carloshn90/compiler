@@ -21,12 +21,6 @@ object Converter {
       case _ => unit(Left(ErrorCompiler(line, s"Impossible to convert $value to boolean")))
     }
 
-  def isTruthy(value: Any): Boolean = value match {
-    case Nil            => false
-    case value: Boolean => value
-    case _              => true
-  }
-
   private def convertStringToDouble(value: String)(implicit line: Int): Either[ErrorCompiler, Double] = try {
     Right(value.toDouble)
   } catch {

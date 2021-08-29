@@ -5,26 +5,27 @@ import error.ErrorCompiler
 import interpreter.InterResult.{InterResult, InterResultMonad, unit}
 import interpreter.expr.InterExpr.evaluate
 import interpreter.function.Callable
+import interpreter.{InterpreterState, Result}
 import lexer.Token
 import parser.expr.Expr
 
 object InterCall {
 
-  def interCall(funExpr: Expr, token: Token, arguments: List[Expr]): InterResult[Any] = for {
+  def interCall(funExpr: Expr, token: Token, arguments: List[Expr]): InterResult[Result] = for {
     fun   <- evaluate(funExpr)
     args  <- evaluateArguments(arguments)
     call  <- callFunction(fun, token, args)
   } yield call
 
-  private def evaluateArguments(arguments: List[Expr]): InterResult[List[Any]] =
-    arguments.foldRight(unit(Right(List[Any]())))((h: Expr, t: InterResult[List[Any]]) => evaluateArgument(h, t))
+  private def evaluateArguments(arguments: List[Expr]): InterResult[List[Result]] =
+    arguments.foldRight(unit(Right(List[Result]())))((h: Expr, t: InterResult[List[Result]]) => evaluateArgument(h, t))
 
-  private def evaluateArgument(argument: Expr, arguments: InterResult[List[Any]]): InterResult[List[Any]] =
-    evaluate(argument).map2(arguments)((hh: Any, tt: List[Any]) => hh +: tt)
+  private def evaluateArgument(argument: Expr, arguments: InterResult[List[Result]]): InterResult[List[Result]] =
+    evaluate(argument).map2(arguments)((hh: Result, tt: List[Result]) => hh +: tt)
 
-  private def callFunction(function: Any, token: Token, args: List[Any]): InterResult[Any] = function match {
-    case fun: Callable if fun.argumentSize != args.size => unit(Left(ErrorCompiler(token.line, s"Expected ${fun.argumentSize} arguments but got ${args.size}.")))
-    case fun: Callable                                  => unit(fun.call(args))
-    case _                                              => unit(Left(ErrorCompiler(token.line, "Invalid function type")))
+  private def callFunction(function: Result, token: Token, args: List[Result]): InterResult[Result] = function match {
+    case InterpreterState(_, Some(fun: Callable)) if fun.argumentSize != args.size  => unit(Left(ErrorCompiler(token.line, s"Expected ${fun.argumentSize} arguments but got ${args.size}.")))
+    case InterpreterState(prints, Some(fun: Callable))                              => fun.call(args).map(r => InterpreterState(r.printList ::: prints, r.value))
+    case _                                                                          => unit(Left(ErrorCompiler(token.line, "Invalid function type")))
   }
 }

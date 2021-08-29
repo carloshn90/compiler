@@ -2,8 +2,8 @@ package org.compiler.example
 package interpreter.stmt
 
 import error.ErrorCompiler
-import interpreter.Environment
 import interpreter.stmt.InterWhile.interWhile
+import interpreter.{Environment, InterpreterState, Result}
 import lexer.{IDENTIFIER, LESS, PLUS, Token}
 import parser.expr.{Assign, Binary, Expr, Literal, Variable}
 import parser.stmt.{Block, Expression, Print, Stmt}
@@ -23,10 +23,10 @@ class InterWhileTest extends AnyFunSuite with Matchers {
     ))
     val env: Environment = new Environment().define("a", 0.0)
 
-    val (intResult: Either[ErrorCompiler, List[String]], envResult: Environment) = interWhile(condition, body)(env)
+    val (intResult: Either[ErrorCompiler, Result], envResult: Environment) = interWhile(condition, body)(env)
 
     envResult.size shouldBe 1
-    intResult shouldBe Right(List("1", "0"))
+    intResult shouldBe Right(InterpreterState(List("0", "1"), Some(1)))
   }
 
   test("Error interpreting condition, should return error") {
@@ -37,7 +37,7 @@ class InterWhileTest extends AnyFunSuite with Matchers {
     ))
     val env: Environment = new Environment()
 
-    val intResult: Either[ErrorCompiler, List[String]] = interWhile(condition, body)(env)._1
+    val intResult: Either[ErrorCompiler, Result] = interWhile(condition, body)(env)._1
 
     intResult shouldBe Left(ErrorCompiler(1, "Undefined variable 'a'."))
   }
@@ -52,7 +52,7 @@ class InterWhileTest extends AnyFunSuite with Matchers {
     ))
     val env: Environment = new Environment().define("a", 0.0)
 
-    val intResult: Either[ErrorCompiler, List[String]] = interWhile(condition, body)(env)._1
+    val intResult: Either[ErrorCompiler, Result] = interWhile(condition, body)(env)._1
 
     intResult shouldBe Left(ErrorCompiler(1, "Undefined variable 'b'."))
   }
@@ -67,9 +67,9 @@ class InterWhileTest extends AnyFunSuite with Matchers {
     ))
     val env: Environment = new Environment()
 
-    val intResult: Either[ErrorCompiler, List[String]] = interWhile(condition, body)(env)._1
+    val intResult: Either[ErrorCompiler, Result] = interWhile(condition, body)(env)._1
 
-    intResult shouldBe Right(List())
+    intResult shouldBe Right(InterpreterState(List(), None))
   }
 
 }

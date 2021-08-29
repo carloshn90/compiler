@@ -2,8 +2,8 @@ package org.compiler.example
 package interpreter.expr
 
 import error.ErrorCompiler
-import interpreter.Environment
 import interpreter.expr.InterAssign.interAssign
+import interpreter.{Environment, InterpreterState, Result}
 import lexer.{IDENTIFIER, PLUS, Token}
 import parser.expr.{Binary, Expr, Literal}
 
@@ -19,10 +19,10 @@ class InterAssignTest extends AnyFunSuite with Matchers {
     val newValueExpr: Expr =  Literal("hello")
     val env: Environment = new Environment().define(varName.lexeme, oldValue)
 
-    val (resultValue: Either[ErrorCompiler, Any], resultEnv: Environment) = interAssign(varName, newValueExpr)(env)
+    val (resultValue: Either[ErrorCompiler, Result], resultEnv: Environment) = interAssign(varName, newValueExpr)(env)
 
     resultEnv.size shouldBe 1
-    resultValue shouldBe Right("hello")
+    resultValue shouldBe Right(InterpreterState(List(), Some("hello")))
   }
 
   test("Interpreting assign variable no present in environment, should return error") {
@@ -31,7 +31,7 @@ class InterAssignTest extends AnyFunSuite with Matchers {
     val valueExpr: Expr =  Literal("hello")
     val env: Environment = new Environment()
 
-    val (resultValue: Either[ErrorCompiler, Any], resultEnv: Environment) = interAssign(varName, valueExpr)(env)
+    val (resultValue: Either[ErrorCompiler, Result], resultEnv: Environment) = interAssign(varName, valueExpr)(env)
 
     resultEnv.size shouldBe 0
     resultValue shouldBe Left(ErrorCompiler(10, "Undefined variable 'var name'."))
@@ -43,7 +43,7 @@ class InterAssignTest extends AnyFunSuite with Matchers {
     val wrongExpr: Expr =  Binary(Literal("hello"), Token(PLUS, "+", 3, None), Literal(List(2.0)))
     val env: Environment = new Environment()
 
-    val (resultValue: Either[ErrorCompiler, Any], resultEnv: Environment) = interAssign(varName, wrongExpr)(env)
+    val (resultValue: Either[ErrorCompiler, Result], resultEnv: Environment) = interAssign(varName, wrongExpr)(env)
 
     resultEnv.size shouldBe 0
     resultValue shouldBe Left(ErrorCompiler(3, s"It isn't possible to add these values: hello + List(2.0)"))

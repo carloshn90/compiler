@@ -2,20 +2,20 @@ package org.compiler.example
 package interpreter.stmt
 
 import error.ErrorCompiler
-import interpreter.Environment
 import interpreter.InterResult.InterResult
 import interpreter.expr.InterExpr.evaluate
+import interpreter.{Environment, InterpreterState, Result}
 import lexer.Token
 import parser.expr.Expr
 
 object InterVar {
 
   def interVar(token: Token, expr: Expr): InterResult[Option[String]] = env => {
-    val (right: Either[ErrorCompiler, Any], nextEnv: Environment) = evaluate(expr)(env)
+    val (right: Either[ErrorCompiler, Result], nextEnv: Environment) = evaluate(expr)(env)
     right match {
-      case Right(null)   => defineVar(token.lexeme, Nil)(nextEnv)
-      case Right(value)  => defineVar(token.lexeme, value)(nextEnv)
-      case Left(err)     => (Left(err), nextEnv)
+      case Right(InterpreterState(_, None))         => defineVar(token.lexeme, Nil)(nextEnv)
+      case Right(InterpreterState(_, Some(value)))  => defineVar(token.lexeme, value)(nextEnv)
+      case Left(err)                      => (Left(err), nextEnv)
     }
   }
 

@@ -2,16 +2,19 @@ package org.compiler.example
 package interpreter.expr
 
 import error.ErrorCompiler
-import interpreter.Environment
-import interpreter.InterResult.{InterResult, unit}
+import interpreter.InterResult.{InterResult, map, unit}
 import interpreter.expr.InterExpr.evaluate
+import interpreter.{Environment, Result}
 import lexer.Token
 import parser.expr.Expr
 
 object InterAssign {
 
-  def interAssign(token: Token, expr: Expr): InterResult[Any] = env => {
-    val (right: Either[ErrorCompiler, Any], nextEnv: Environment) = evaluate(expr)(env)
+  def interAssign(token: Token, expr: Expr): InterResult[Result] =
+    map(evaluate(expr))(value => interAssignValue(token, value))
+
+  private def interAssignValue(token: Token, exprValue: InterResult[Any]): InterResult[Any] = env => {
+    val (right: Either[ErrorCompiler, Any], nextEnv: Environment) = exprValue(env)
     assignVar(token.lexeme, right)(token.line)(nextEnv)
   }
 

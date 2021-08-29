@@ -2,9 +2,9 @@ package org.compiler.example
 package interpreter.stmt
 
 import error.ErrorCompiler
-import interpreter.Environment
 import interpreter.function.InterFunction
 import interpreter.stmt.InterFunction.interFunction
+import interpreter.{Environment, InterpreterState, Result}
 import lexer.{IDENTIFIER, Token}
 import parser.expr.Variable
 import parser.stmt.{Print, Stmt}
@@ -22,11 +22,11 @@ class InterFunctionTest extends AnyFunSuite with Matchers {
       Print(Variable(Token(IDENTIFIER, "a", 1, Some("a")))),
     )
 
-    val (result: Either[ErrorCompiler, List[String]], envResult: Environment) = interFunction(funName, params, body)(new Environment())
+    val (result: Either[ErrorCompiler, Result], envResult: Environment) = interFunction(funName, params, body)(new Environment())
 
     envResult.size shouldBe 1
     envResult.get(funName.lexeme).getOrElse(Nil).isInstanceOf[InterFunction] shouldBe true
-    result shouldBe Right(List())
+    result shouldBe Right(InterpreterState(List(), None))
   }
 
 }

@@ -7,15 +7,18 @@ import interpreter.stmt.InterExpression.interExpression
 import interpreter.stmt.InterFunction.interFunction
 import interpreter.stmt.InterIf.interIf
 import interpreter.stmt.InterPrint.interPrint
+import interpreter.stmt.InterReturn.interReturn
 import interpreter.stmt.InterVar.interVar
 import interpreter.stmt.InterWhile.interWhile
-import parser.stmt.{Block, Expression, Function, If, Print, Stmt, Var, While}
+import interpreter.{InterpreterState, Result}
+import parser.stmt.{Block, Expression, Function, If, Print, Return, Stmt, Var, While}
 
 object InterStmt {
 
-  def execute(stmt: Stmt): InterResult[List[String]] = stmt match {
+  def execute(stmt: Stmt): InterResult[Result] = stmt match {
     case Block(statements)                      => interBlock(statements)
     case Expression(expr)                       => interExpression(expr)
+    case Return(_, value)                        => interReturn(value)
     case Function(name, params, body)           => interFunction(name, params, body)
     case If(condition, thenBranch, elseBranch)  => interIf(condition, thenBranch, elseBranch)
     case Print(expr)                            => interPrint(expr).map(transformOptionToList)
@@ -23,9 +26,9 @@ object InterStmt {
     case While(condition, body)                 => interWhile(condition, body)
   }
 
-  private def transformOptionToList(option: Option[String]): List[String] = option match {
-    case Some(value) => List(value)
-    case _           => List()
+  private def transformOptionToList(option: Option[String]): Result = option match {
+    case Some(value) => InterpreterState(List(value), None)
+    case _           => InterpreterState(List(), None)
   }
 
 

@@ -7,7 +7,7 @@ import parser.expr.Expr
 
 object InterPrint {
 
-  def interPrint(expr: Expr): InterResult[Option[String]] = evaluate(expr).map(e => Some(stringify(e)))
+  def interPrint(expr: Expr): InterResult[Option[String]] = evaluate(expr).map(e => e.value.map(stringify))
 
   private def stringify(value: Any): String = value match {
     case Nil|null          => "Nil"

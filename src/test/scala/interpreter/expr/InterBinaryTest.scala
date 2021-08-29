@@ -2,7 +2,7 @@ package org.compiler.example
 package interpreter.expr
 
 import error.ErrorCompiler
-import interpreter.Environment
+import interpreter.{Environment, InterpreterState, Result}
 import interpreter.expr.InterBinary.interBinary
 import lexer.{BANG_EQUAL, EQUAL_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL, MINUS, PLUS, SLASH, STAR, Token}
 import parser.expr.{Expr, Literal}
@@ -52,9 +52,9 @@ class InterBinaryTest extends AnyFunSuite with Matchers {
       val right: Expr = Literal(rightValue)
       val env: Environment = new Environment()
 
-      val result: Either[ErrorCompiler, Any] = interBinary(left, operator, right)(env)._1
+      val result: Either[ErrorCompiler, Result] = interBinary(left, operator, right)(env)._1
 
-      result shouldBe expected
+      result shouldBe expected.map(e => InterpreterState(List(), Some(e)))
     }
   }
 }

@@ -2,6 +2,7 @@ package org.compiler.example
 package interpreter.function
 
 import error.ErrorCompiler
+import interpreter.{Environment, InterpreterState, Result}
 import lexer.{IDENTIFIER, PLUS, Token}
 import parser.expr.{Binary, Literal, Variable}
 import parser.stmt.{Function, Print, Stmt}
@@ -21,10 +22,11 @@ class InterFunctionTest extends AnyFunSuite with Matchers {
 
     val function: Function = Function(funName, params, body)
     val interFunction: InterFunction = new InterFunction(function)
+    val env: Environment = new Environment()
 
-    val result: Either[ErrorCompiler, List[String]] = interFunction.call(List("Hello"))
+    val result: Either[ErrorCompiler, Result] = interFunction.call(List(InterpreterState(List(), Some("Hello"))))(env)._1
 
-    result shouldBe Right(List("Hello"))
+    result shouldBe Right(InterpreterState(List("Hello"), None))
   }
 
   test("Error in the body statement should return an error") {
@@ -37,8 +39,9 @@ class InterFunctionTest extends AnyFunSuite with Matchers {
 
     val function: Function = Function(funName, params, body)
     val interFunction: InterFunction = new InterFunction(function)
+    val env: Environment = new Environment()
 
-    val result: Either[ErrorCompiler, List[String]] = interFunction.call(List("Hello"))
+    val result: Either[ErrorCompiler, Result] = interFunction.call(List(InterpreterState(List(), Some("Hello"))))(env)._1
 
     result shouldBe Left(ErrorCompiler(1, "It isn't possible to add these values: 2.0 + List()"))
   }
