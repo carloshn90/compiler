@@ -14,6 +14,6 @@ class Interpreter {
     case List() =>  unit(carryResult)(env)
     case h::t   =>
       val (result, e) = execute(h)(env)
-      interpreter(t, result.map2(carryResult)((r, carry) => r.printList:::carry))(e)
+      interpreter(t, result.map2(carryResult)((r, carry) => carry:::r.printList))(e)
   }
 }

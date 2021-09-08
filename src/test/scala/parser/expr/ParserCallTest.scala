@@ -25,7 +25,7 @@ class ParserCallTest extends AnyFunSuite with Matchers {
     val (grammarResult: GrammarResult[Expr], tokenListResult: List[Token]) = parserCall(parser.primary(), parser.expression())(tokenList)
 
     tokenListResult should have size 1
-    grammarResult shouldBe Right(Call(Variable(Token(IDENTIFIER, "functionName", 1, Some("functionName"))),Token(RIGHT_PAREN, ")", 1, None), List(Literal("argument1"))))
+    grammarResult shouldBe Right(Call(Variable(Token(IDENTIFIER, "functionName", 1, Some("functionName"))),Token(IDENTIFIER, "functionName", 1, Some("functionName")), List(Literal("argument1"))))
   }
 
   test("Parsing function call with multiples arguments, should return call statement with multiple arguments") {
@@ -44,7 +44,7 @@ class ParserCallTest extends AnyFunSuite with Matchers {
     val (grammarResult: GrammarResult[Expr], tokenListResult: List[Token]) = parserCall(parser.primary(), parser.expression())(tokenList)
 
     tokenListResult should have size 1
-    grammarResult shouldBe Right(Call(Variable(Token(IDENTIFIER, "functionName", 1, Some("functionName"))),Token(RIGHT_PAREN, ")", 1, None), argumentsExpected))
+    grammarResult shouldBe Right(Call(Variable(Token(IDENTIFIER, "functionName", 1, Some("functionName"))),Token(IDENTIFIER, "functionName", 1, Some("functionName")), argumentsExpected))
   }
 
   test("Error Parsing function name, should return error") {

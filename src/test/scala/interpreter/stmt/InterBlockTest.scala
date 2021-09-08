@@ -35,7 +35,8 @@ class InterBlockTest extends AnyFunSuite with Matchers {
     val originalEnv: Environment = new Environment().define("b", 2.0)
     val (result: Either[ErrorCompiler, Result], resultEnv: Environment) = interBlock(blocks)(originalEnv)
 
-    resultEnv shouldBe originalEnv
+    resultEnv.size shouldBe originalEnv.size
+    resultEnv.get("b") shouldBe Right(2)
     result shouldBe Right(InterpreterState(List("4"), None))
   }
 
@@ -48,7 +49,8 @@ class InterBlockTest extends AnyFunSuite with Matchers {
     val originalEnv: Environment = new Environment().define("a", 4.0)
     val (result: Either[ErrorCompiler, Result], resultEnv: Environment) = interBlock(blocks)(originalEnv)
 
-    resultEnv shouldBe originalEnv
+    resultEnv.size shouldBe originalEnv.size
+    resultEnv.get("a") shouldBe Right(4)
     result shouldBe Right(InterpreterState(List("4"), None))
   }
 

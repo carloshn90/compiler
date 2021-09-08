@@ -1,38 +1,66 @@
 package org.compiler.example
 package interpreter
 
-class Environment(global: Option[Environment] = None, values: Map[String, Any] = Map()) {
+import scala.annotation.tailrec
 
-  def size: Int = values.size
+/**
+ * Environment save the variable values, where the head is the local scope and the last element is the global scope
+ *
+ * @param values linkedList of values local -> closure -> global
+ */
+class Environment(values: List[Map[String, Any]] = List(Map())) {
 
-  def define(name: String, value: Any): Environment =
-    new Environment(global, values + (name -> value))
+  def size: Int = values.map(_.size).sum
 
-  def assign(name: String, value: Any): Option[Environment] = getGlobal(name)
-    .map(_ => new Environment(assignGlobal(name, value), values))
-    .orElse(assignLocal(name, value))
+  def nestedSize: Int = values.size
 
-  def get(name: String): Either[String, Any] = getLocal(name) match {
-    case Right(v) => Right(v)
-    case _        => getGlobal(name).toRight(s"Undefined variable '$name'.")
+  def define(name: String, value: Any): Environment = {
+    val localScope: Map[String, Any] = values.head + (name -> value)
+    new Environment(localScope +: values.tail)
   }
 
-  def restore(): Environment =
-    global.getOrElse(new Environment())
+  def assign(name: String, value: Any): Option[Environment] = values
+    .find(_.contains(name))
+    .map(_ => new Environment(updateValue(name, value, values)))
 
-  private def assignLocal(name: String, value: Any): Option[Environment] = values
-    .get(name)
-    .map(_ => define(name, value))
-
-  private def assignGlobal(name: String, value: Any): Option[Environment] =
-    global.flatMap(g => g.assign(name, value))
-
-  private def getLocal(name: String): Either[String, Any] = values.get(name)
+  def get(name: String): Either[String, Any] = values
+    .find((value: Map[String, Any]) => value.contains(name))
+    .flatMap((value: Map[String, Any]) => value.get(name))
     .toRight(s"Undefined variable '$name'.")
 
-  private def getGlobal(name: String): Option[Any] =
-    global.flatMap(g => g.get(name) match {
-      case Right(value) => Some(value)
-      case _            => None
-    })
+  def restore: Environment = new Environment(values.tail)
+
+  def restoreTo(index: Int): Environment =
+    new Environment(removeByIndex(index, values))
+
+  def createLocalEnv: Environment =
+    new Environment(List(Map[String, Any]()) ::: values)
+
+  def addClosure(closure: Environment): Environment =
+    new Environment(closure.getValues ::: values)
+
+  def getValues: List[Map[String, Any]] = values
+
+  def getClosure(index: Int): Environment =
+    new Environment(getByIndex(index - 1, values, List()))
+
+  private def updateValue(name: String, value: Any, values: List[Map[String, Any]]): List[Map[String, Any]] = values match {
+    case List()                   => List()
+    case h::t if h.contains(name) => (h + (name -> value)) +: t
+    case h::t                     => h +: updateValue(name, value, t)
+  }
+
+  @tailrec
+  private def removeByIndex(index: Int, values: List[Map[String, Any]]): List[Map[String, Any]] = index match {
+    case 0                    => values
+    case _ if values.isEmpty  => List()
+    case _                    => removeByIndex(index - 1, values.tail)
+  }
+
+  @tailrec
+  private def getByIndex(index: Int, values: List[Map[String, Any]], acc: List[Map[String, Any]]): List[Map[String, Any]] = index match {
+    case 0                    => acc
+    case _ if values.isEmpty  => acc
+    case _                    => getByIndex(index - 1, values.tail, acc :+ values.head)
+  }
 }

@@ -32,5 +32,8 @@ object ParserCall {
   }
 
   private def createCall(calle: GrammarResult[Expr], parent: Token, arguments: List[Expr]): GrammarResult[Expr] =
-    calle.map(c => Call(c, parent, arguments))
+    calle.flatMap {
+      case fun@Variable(name) => Right(Call(fun, name, arguments))
+      case _ => Left(ErrorCompiler(parent.line, s"Error in the function call name"))
+    }
 }

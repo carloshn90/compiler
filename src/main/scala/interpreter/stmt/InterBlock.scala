@@ -4,16 +4,16 @@ package interpreter.stmt
 import error.ErrorCompiler
 import interpreter.InterResult.{InterResult, InterResultMonad, unit}
 import interpreter.stmt.InterStmt.execute
-import interpreter.{Environment, InterpreterState, Result, ReturnResult}
+import interpreter.{InterpreterState, Result, ReturnResult}
 import parser.stmt.Stmt
 
 object InterBlock {
 
   def interBlock(block: List[Stmt]): InterResult[Result] = env =>
-    interAllStatements(block)(new Environment(Some(env)))
+    interAllStatements(block)(env.createLocalEnv)
 
   private def interAllStatements(block: List[Stmt], acc: Result = InterpreterState(List(), None)): InterResult[Result] = env => block match {
-    case List() => unit(Right(acc))(env.restore())
+    case List() => unit(Right(acc))(env.restore)
     case h::t   => executeStmt(h, t, acc)(env)
   }
 

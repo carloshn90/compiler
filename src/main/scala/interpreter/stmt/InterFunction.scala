@@ -10,7 +10,7 @@ import parser.stmt.{Function, Stmt}
 object InterFunction {
 
   def interFunction(name: Token, params: List[Token], body: List[Stmt]): InterResult[Result] = env => {
-    val interFunction: InterFunction = new InterFunction(Function(name, params, body))
+    val interFunction: InterFunction = new InterFunction(Function(name, params, body), env)
     (Right(InterpreterState(List(), None)), env.define(name.lexeme, interFunction))
   }
 }

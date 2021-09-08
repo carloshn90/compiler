@@ -17,7 +17,7 @@ class TestCaller extends Callable {
 
   override def argumentSize: Int = 3
 
-  override def call(arguments: List[Result]): InterResult[Result] = {
+  override def call(funName: Token, arguments: List[Result]): InterResult[Result] = {
 
     val init: Either[ErrorCompiler, Double] = Right(0d)
     val sumResult = arguments.foldRight(init)((h: Result, t: Either[ErrorCompiler,Double]) => t.flatMap(tt => addArguments(h, tt)))
