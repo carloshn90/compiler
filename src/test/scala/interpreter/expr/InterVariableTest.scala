@@ -2,6 +2,7 @@ package org.compiler.example
 package interpreter.expr
 
 import error.ErrorCompiler
+import helper.TestEnvironmentHelper.defineOrFail
 import interpreter.expr.InterVariable.interVariable
 import interpreter.{Environment, InterpreterState, Result}
 import lexer.{IDENTIFIER, STRING, Token}
@@ -15,7 +16,7 @@ class InterVariableTest extends AnyFunSuite with Matchers {
 
     val varName: Token = Token(IDENTIFIER, "var name", 0, Some("var name"))
     val varValue: Token = Token(STRING, "Some string value", 0, Some("Some string value"))
-    val env: Environment = new Environment().define(varName.lexeme, varValue)
+    val env: Environment = defineOrFail(new Environment(), varName, varValue)
 
     val result: Either[ErrorCompiler, Result] = interVariable(varName)(env)._1
 

@@ -2,6 +2,7 @@ package org.compiler.example
 package interpreter.stmt
 
 import error.ErrorCompiler
+import helper.TestEnvironmentHelper.defineOrFail
 import interpreter.stmt.InterBlock.interBlock
 import interpreter.{Environment, InterpreterState, Result}
 import lexer.{IDENTIFIER, PLUS, RETURN, Token}
@@ -32,7 +33,7 @@ class InterBlockTest extends AnyFunSuite with Matchers {
       Print(Variable(Token(IDENTIFIER, "a", 1, Some("a")))),
     )
 
-    val originalEnv: Environment = new Environment().define("b", 2.0)
+    val originalEnv: Environment = defineOrFail(new Environment(), Token(IDENTIFIER, "b", 1, Some("b")), 2.0)
     val (result: Either[ErrorCompiler, Result], resultEnv: Environment) = interBlock(blocks)(originalEnv)
 
     resultEnv.size shouldBe originalEnv.size
@@ -46,7 +47,7 @@ class InterBlockTest extends AnyFunSuite with Matchers {
       Print(Variable(Token(IDENTIFIER, "a", 1, Some("a")))),
     )
 
-    val originalEnv: Environment = new Environment().define("a", 4.0)
+    val originalEnv: Environment = defineOrFail(new Environment(), Token(IDENTIFIER, "a", 1, Some("a")), 4.0)
     val (result: Either[ErrorCompiler, Result], resultEnv: Environment) = interBlock(blocks)(originalEnv)
 
     resultEnv.size shouldBe originalEnv.size
@@ -71,7 +72,7 @@ class InterBlockTest extends AnyFunSuite with Matchers {
     val blocks: List[Stmt] = List(
       Expression(Assign(aVar, Binary(Variable(Token(IDENTIFIER, "a", 3, Some("a"))), Token(PLUS, "+", 3, None), Literal(1.0))))
     )
-    val environment: Environment = new Environment().define("a", 0.0)
+    val environment: Environment = defineOrFail(new Environment(), Token(IDENTIFIER, "a", 1, Some("a")), 0.0)
 
     val envResult: Environment = interBlock(blocks)(environment)._2
 

@@ -11,6 +11,9 @@ object InterFunction {
 
   def interFunction(name: Token, params: List[Token], body: List[Stmt]): InterResult[Result] = env => {
     val interFunction: InterFunction = new InterFunction(Function(name, params, body), env)
-    (Right(InterpreterState(List(), None)), env.define(name.lexeme, interFunction))
+    env.define(name, interFunction) match {
+      case Right(environment) => (Right(InterpreterState(List(), None)), environment)
+      case Left(err)          => (Left(err), env)
+    }
   }
 }

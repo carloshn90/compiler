@@ -2,6 +2,7 @@ package org.compiler.example
 package interpreter.function
 
 import error.ErrorCompiler
+import helper.TestEnvironmentHelper.defineOrFail
 import interpreter.{Environment, InterpreterState, Result}
 import lexer.{IDENTIFIER, PLUS, Token}
 import parser.expr.{Assign, Binary, Literal, Variable}
@@ -40,7 +41,7 @@ class InterFunctionTest extends AnyFunSuite with Matchers {
 
     val function: Function = Function(funName, params, body)
     val interFunction: InterFunction = new InterFunction(function, new Environment())
-    val env: Environment = new Environment().define("a", 0).define("sum", interFunction)
+    val env: Environment = defineOrFail(defineOrFail(new Environment(), Token(IDENTIFIER, "a", 1, Some("a")), 0), Token(IDENTIFIER, "sum", 1, Some("sum")), interFunction)
 
     val (result: Either[ErrorCompiler, Result], resultEnv: Environment) = interFunction.call(funName, List(InterpreterState(List(), Some("Hello"))))(env)
 

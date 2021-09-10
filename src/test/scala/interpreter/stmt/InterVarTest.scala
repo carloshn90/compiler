@@ -24,7 +24,7 @@ class InterVarTest extends AnyFunSuite with Matchers {
     result.get(token.lexeme) shouldBe Right(Nil)
   }
 
-  test("Interpreting var override value, should return last value") {
+  test("Interpreting var override value, should fail it's not possible to create two var with the same name") {
 
     val token: Token = Token(IDENTIFIER, "var name", 0, Some("var name"))
     val expr: Expr = Literal(Nil)
@@ -32,10 +32,10 @@ class InterVarTest extends AnyFunSuite with Matchers {
     val env: Environment = new Environment()
 
     val result: Environment = interVar(token, expr)(env)._2
-    val overrideResult: Environment = interVar(token, overrideExpr)(result)._2
+    val (overrideResult: Either[ErrorCompiler, Option[String]], overrideEnv: Environment) = interVar(token, overrideExpr)(result)
 
-    overrideResult.size shouldBe 1
-    overrideResult.get(token.lexeme) shouldBe Right(2.0)
+    overrideEnv.size shouldBe 1
+    overrideResult shouldBe Left(ErrorCompiler(0, "Already a variable with the name: var name in this scope."))
   }
 
   test("Interpreting var add multiples values, should return both values") {

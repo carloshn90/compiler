@@ -18,7 +18,7 @@ class InterFunction(declaration: Function, closure: Environment) extends Callabl
     val envWithClosure: Environment = env.addClosure(closure)
 
     val envWithArguments = arguments.zip(declaration.params)
-      .foldRight(envWithClosure.createLocalEnv)((argParams, e: Environment) => defineValue(e, argParams._2.lexeme, argParams._1))
+      .foldRight(envWithClosure.createLocalEnv)((argParams, e: Environment) => defineValue(e, argParams._2, argParams._1))
 
     val (funResult, blockEnv) = interBlock(declaration.body)(envWithArguments)
     (funResult, updateFunctionWithClosureEnv(funName.lexeme, envWithClosure.nestedSize, blockEnv).getOrElse(env))
@@ -30,6 +30,6 @@ class InterFunction(declaration: Function, closure: Environment) extends Callabl
     funEnv.assign(funName, new InterFunction(declaration, funClosureEnv))
   }
 
-  private def defineValue(env: Environment, name: String, result: Result): Environment =
-    result.value.map(value => env.define(name, value)).getOrElse(env)
+  private def defineValue(env: Environment, token: Token, result: Result): Environment =
+    result.value.flatMap(value => env.define(token, value).toOption).getOrElse(env)
 }

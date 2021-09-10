@@ -2,6 +2,7 @@ package org.compiler.example
 package interpreter.stmt
 
 import error.ErrorCompiler
+import helper.TestEnvironmentHelper.defineOrFail
 import interpreter.stmt.InterWhile.interWhile
 import interpreter.{Environment, InterpreterState, Result}
 import lexer.{IDENTIFIER, LESS, PLUS, Token}
@@ -21,7 +22,7 @@ class InterWhileTest extends AnyFunSuite with Matchers {
       Print(Variable(aVar)),
       Expression(Assign(aVar, Binary(Variable(Token(IDENTIFIER, "a", 3, Some("a"))), Token(PLUS, "+", 3, None), Literal(1.0))))
     ))
-    val env: Environment = new Environment().define("a", 0.0)
+    val env: Environment = defineOrFail(new Environment(), Token(IDENTIFIER, "a", 1, Some("a")), 0.0)
 
     val (intResult: Either[ErrorCompiler, Result], envResult: Environment) = interWhile(condition, body)(env)
 
@@ -50,7 +51,7 @@ class InterWhileTest extends AnyFunSuite with Matchers {
     val body: Stmt =  Block(List(
       Print(Variable(bVar))
     ))
-    val env: Environment = new Environment().define("a", 0.0)
+    val env: Environment = defineOrFail(new Environment(), Token(IDENTIFIER, "a", 1, Some("a")), 0.0)
 
     val intResult: Either[ErrorCompiler, Result] = interWhile(condition, body)(env)._1
 

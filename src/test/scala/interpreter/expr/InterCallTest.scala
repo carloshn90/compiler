@@ -2,6 +2,7 @@ package org.compiler.example
 package interpreter.expr
 
 import error.ErrorCompiler
+import helper.TestEnvironmentHelper.defineOrFail
 import interpreter.InterResult.{InterResult, unit}
 import interpreter.expr.InterCall.interCall
 import interpreter.function.Callable
@@ -58,7 +59,7 @@ class InterCallTest extends AnyFunSuite with Matchers {
     val funExpr: Expr = Variable(Token(IDENTIFIER, "funName", 1, Some("funName")))
     val token: Token = Token(RIGHT_PAREN, ")", 1, None)
     val arguments: List[Expr] = List(Literal(true))
-    val env: Environment = new Environment().define("funName", 2.2)
+    val env: Environment = defineOrFail(new Environment(), Token(IDENTIFIER, "funName", 1, Some("funName")), 2.2)
 
     val (resultValue: Either[ErrorCompiler, Result], resultEnv: Environment) = interCall(funExpr, token, arguments)(env)
 
@@ -71,7 +72,7 @@ class InterCallTest extends AnyFunSuite with Matchers {
     val funExpr: Expr = Variable(Token(IDENTIFIER, "funName", 1, Some("funName")))
     val token: Token = Token(RIGHT_PAREN, ")", 1, None)
     val arguments: List[Expr] = List(Literal(true), Literal("Hello"))
-    val env: Environment = new Environment().define("funName", new TestCaller())
+    val env: Environment = defineOrFail(new Environment(), Token(IDENTIFIER, "funName", 1, Some("funName")), new TestCaller())
 
     val (resultValue: Either[ErrorCompiler, Result], resultEnv: Environment) = interCall(funExpr, token, arguments)(env)
 
@@ -84,7 +85,7 @@ class InterCallTest extends AnyFunSuite with Matchers {
     val funExpr: Expr = Variable(Token(IDENTIFIER, "funName", 1, Some("funName")))
     val token: Token = Token(RIGHT_PAREN, ")", 1, None)
     val arguments: List[Expr] = List(Literal(2.0), Literal(3.0), Literal(5.0))
-    val env: Environment = new Environment().define("funName", new TestCaller())
+    val env: Environment = defineOrFail(new Environment(), Token(IDENTIFIER, "funName", 1, Some("funName")), new TestCaller())
 
     val (resultValue: Either[ErrorCompiler, Result], resultEnv: Environment) = interCall(funExpr, token, arguments)(env)
 
@@ -97,7 +98,7 @@ class InterCallTest extends AnyFunSuite with Matchers {
     val funExpr: Expr = Variable(Token(IDENTIFIER, "funName", 1, Some("funName")))
     val token: Token = Token(RIGHT_PAREN, ")", 1, None)
     val arguments: List[Expr] = List(Literal(2.0), Literal(3.0), Literal("hello"))
-    val env: Environment = new Environment().define("funName", new TestCaller())
+    val env: Environment = defineOrFail(new Environment(), Token(IDENTIFIER, "funName", 1, Some("funName")), new TestCaller())
 
     val (resultValue: Either[ErrorCompiler, Result], resultEnv: Environment) = interCall(funExpr, token, arguments)(env)
 

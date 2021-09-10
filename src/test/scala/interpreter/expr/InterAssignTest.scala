@@ -2,6 +2,7 @@ package org.compiler.example
 package interpreter.expr
 
 import error.ErrorCompiler
+import helper.TestEnvironmentHelper.defineOrFail
 import interpreter.expr.InterAssign.interAssign
 import interpreter.{Environment, InterpreterState, Result}
 import lexer.{IDENTIFIER, PLUS, Token}
@@ -17,7 +18,7 @@ class InterAssignTest extends AnyFunSuite with Matchers {
     val varName: Token = Token(IDENTIFIER, "var name", 0, Some("var name"))
     val oldValue: Double = 3.455
     val newValueExpr: Expr =  Literal("hello")
-    val env: Environment = new Environment().define(varName.lexeme, oldValue)
+    val env: Environment = defineOrFail(new Environment(), varName, oldValue)
 
     val (resultValue: Either[ErrorCompiler, Result], resultEnv: Environment) = interAssign(varName, newValueExpr)(env)
 

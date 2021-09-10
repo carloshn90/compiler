@@ -1,6 +1,9 @@
 package org.compiler.example
 package interpreter
 
+import error.ErrorCompiler
+import lexer.Token
+
 import scala.annotation.tailrec
 
 /**
@@ -14,9 +17,12 @@ class Environment(values: List[Map[String, Any]] = List(Map())) {
 
   def nestedSize: Int = values.size
 
-  def define(name: String, value: Any): Environment = {
-    val localScope: Map[String, Any] = values.head + (name -> value)
-    new Environment(localScope +: values.tail)
+  def define(token: Token, value: Any): Either[ErrorCompiler, Environment] = {
+    if (values.head.contains(token.lexeme)) Left(ErrorCompiler(token.line, s"Already a variable with the name: ${token.lexeme} in this scope."))
+    else {
+      val localScope: Map[String, Any] = values.head + (token.lexeme -> value)
+      Right(new Environment(localScope +: values.tail))
+    }
   }
 
   def assign(name: String, value: Any): Option[Environment] = values
