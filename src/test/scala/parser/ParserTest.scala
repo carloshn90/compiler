@@ -2,7 +2,7 @@ package org.compiler.example
 package parser
 
 import error.ErrorCompiler
-import lexer.{EOF, IF, LEFT_PAREN, PRINT, RIGHT_PAREN, STRING, TRUE, Token}
+import lexer.{EOF, IF, LEFT_PAREN, NUMBER, PRINT, RETURN, RIGHT_PAREN, STRING, TRUE, Token}
 import parser.stmt.Stmt
 
 import org.scalatest.funsuite.AnyFunSuite
@@ -26,6 +26,20 @@ class ParserTest extends AnyFunSuite with Matchers {
     val parserResult: Either[ErrorCompiler, List[Stmt]] = parser.parser()(tokenList)
 
     parserResult shouldBe Left(ErrorCompiler(2, "Expect ';' after value."))
+  }
+
+  test("Parsing wrong return statement, should return error expression not allowed here") {
+
+    val tokenList: List[Token] = List(
+      Token(RETURN, "return", 1, None),
+      Token(NUMBER, "2.33", 1, Some(2.33)),
+      Token(EOF, "", 2, None)
+    )
+
+    val parser: Parser = new Parser()
+    val parserResult: Either[ErrorCompiler, List[Stmt]] = parser.parser()(tokenList)
+
+    parserResult shouldBe Left(ErrorCompiler(1, "the expression 'return' is not allowed here."))
   }
 
 }

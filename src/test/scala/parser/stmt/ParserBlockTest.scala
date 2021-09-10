@@ -2,7 +2,7 @@ package org.compiler.example
 package parser.stmt
 
 import error.ErrorCompiler
-import lexer.{EOF, LEFT_PAREN, NUMBER, PRINT, RIGHT_BRACE, SEMICOLON, STRING, Token}
+import lexer.{EOF, LEFT_PAREN, NUMBER, PRINT, RETURN, RIGHT_BRACE, SEMICOLON, STRING, Token}
 import parser.Parser
 import parser.expr.Literal
 import parser.grammar.GrammarResult.GrammarResult
@@ -32,7 +32,32 @@ class ParserBlockTest extends AnyFunSuite with Matchers {
     ))
 
     val parser: Parser = new Parser()
-    val (grammarResult: GrammarResult[Stmt], tokenListResult: List[Token]) = parserBlock(parser.declaration())(tokenList)
+    val (grammarResult: GrammarResult[Stmt], tokenListResult: List[Token]) = parserBlock(parser.expression(), parser.declaration())(tokenList)
+
+    tokenListResult should have size 1
+    grammarResult shouldBe Right(expectedResult)
+  }
+
+  test("Parsing block with a return expression, should return Block with return statement") {
+
+    val tokenList: List[Token] = List(
+      Token(PRINT, "print", 1, None),
+      Token(STRING, "Hello", 1, Some("Hello")),
+      Token(SEMICOLON, ";", 1, None),
+      Token(RETURN, "return", 2, None),
+      Token(NUMBER, "2.33", 2, Some(2.33)),
+      Token(SEMICOLON, ";", 1, None),
+      Token(RIGHT_BRACE, "}", 3, None),
+      Token(EOF, "", 4, None)
+    )
+
+    val expectedResult: Block = Block(List(
+      Print(Literal("Hello")),
+      Return(Token(RETURN, "return", 2, None), Literal(2.33)),
+    ))
+
+    val parser: Parser = new Parser()
+    val (grammarResult: GrammarResult[Stmt], tokenListResult: List[Token]) = parserBlock(parser.expression(), parser.declaration())(tokenList)
 
     tokenListResult should have size 1
     grammarResult shouldBe Right(expectedResult)
@@ -48,7 +73,7 @@ class ParserBlockTest extends AnyFunSuite with Matchers {
     )
 
     val parser: Parser = new Parser()
-    val grammarResult: GrammarResult[Stmt] = parserBlock(parser.declaration())(tokenList)._1
+    val grammarResult: GrammarResult[Stmt] = parserBlock(parser.expression(), parser.declaration())(tokenList)._1
 
     grammarResult shouldBe Left(ErrorCompiler(1, "Expect '}' after block."))
   }
@@ -62,7 +87,7 @@ class ParserBlockTest extends AnyFunSuite with Matchers {
     )
 
     val parser: Parser = new Parser()
-    val grammarResult: GrammarResult[Stmt] = parserBlock(parser.declaration())(tokenList)._1
+    val grammarResult: GrammarResult[Stmt] = parserBlock(parser.expression(), parser.declaration())(tokenList)._1
 
     grammarResult shouldBe Left(ErrorCompiler(1, "Expect ';' after value."))
   }
@@ -76,7 +101,7 @@ class ParserBlockTest extends AnyFunSuite with Matchers {
     )
 
     val parser: Parser = new Parser()
-    val grammarResult: GrammarResult[Stmt] = parserBlock(parser.declaration())(tokenList)._1
+    val grammarResult: GrammarResult[Stmt] = parserBlock(parser.expression(), parser.declaration())(tokenList)._1
 
     grammarResult shouldBe Left(ErrorCompiler(4, "Expect ')' after expression ''"))
   }

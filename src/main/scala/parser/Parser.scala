@@ -20,7 +20,6 @@ import parser.stmt.ParserFor.parserFor
 import parser.stmt.ParserFunction.parserFunction
 import parser.stmt.ParserIf.parserIf
 import parser.stmt.ParserPrint.parserPrint
-import parser.stmt.ParserReturn.parserReturn
 import parser.stmt.ParserVar.parserVar
 import parser.stmt.ParserWhile.parserWhileStmt
 import parser.stmt.Stmt
@@ -49,10 +48,6 @@ import util.Applicative.eitherApplicative
  *     <td>→ forStmt | ifStatement | printStmt | block | returnStmt | whileStmt | exprStmt ;</td>
  *   </tr>
  *   <tr>
- *     <td>returnStmt</td>
- *     <td>→ "return" expression? ";" ;</td>
- *   </tr>
- *   <tr>
  *     <td>forStmt</td>
  *     <td>→ "for" "(" ( varDecl | exprStmt | ";" ) expression? ";" expression? ")" statement ;</td>
  *   </tr>
@@ -65,8 +60,12 @@ import util.Applicative.eitherApplicative
  *     <td>→ "print" expression ";" ;</td>
  *   </tr>
  *   <tr>
- *     <td>block</td>
- *     <td>→ "{" declaration* "}" ;</td>
+ *     <td>blockStmt</td>
+ *     <td>→ "{" returnStmt | declaration* "}" ;</td>
+ *   </tr>
+ *   <tr>
+ *     <td>returnStmt</td>
+ *     <td>→ "return" expression? ";" ;</td>
  *   </tr>
  *   <tr>
  *     <td>whileStmt</td>
@@ -172,7 +171,6 @@ class Parser {
     case Token(FOR, _, _, _)::tail            => forStmt()(tail)
     case Token(IF, _, _, _)::tail             => ifStatement()(tail)
     case Token(PRINT, _, _, _)::tail          => printStmt()(tail)
-    case tokenList@Token(RETURN, _, _, _)::_  => returnStmt()(tokenList)
     case Token(LEFT_BRACE, _, _, _)::tail     => blockStmt()(tail)
     case Token(WHILE, _, _, _)::tail          => whileStmt()(tail)
     case tokenList@_::_                       => exprStmt()(tokenList)
@@ -197,16 +195,10 @@ class Parser {
     parserPrint(expression())
 
   /**
-   * returnStmt → "return" expression? ";" ;
-   */
-  def returnStmt(): ParserGrammar[Stmt] =
-    parserReturn(expression())
-
-  /**
    * block → "{" declaration* "}" ;
    */
   def blockStmt(): ParserGrammar[Stmt] =
-    parserBlock(declaration())
+    parserBlock(expression(), declaration())
 
   /**
    * whileStmt → "while" "(" expression ")" statement ;
