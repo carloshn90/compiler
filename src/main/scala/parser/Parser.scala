@@ -15,6 +15,7 @@ import parser.expr.ParserVariable.parserVariable
 import parser.grammar.GrammarResult.GrammarResult
 import parser.grammar.ParserGrammar.{ParserGrammar, unit}
 import parser.stmt.ParserBlock.parserBlock
+import parser.stmt.ParserClass.parserClass
 import parser.stmt.ParserExpression.parserExpression
 import parser.stmt.ParserFor.parserFor
 import parser.stmt.ParserFunction.parserFunction
@@ -33,7 +34,11 @@ import util.Applicative.eitherApplicative
  *   </tr>
  *   <tr>
  *     <td>declaration</td>
- *     <td>→ funDecl | varDecl | statement ;</td>
+ *     <td>→ classDecl | funDecl | varDecl | statement ;</td>
+ *   </tr>
+ *   <tr>
+ *     <td>classDecl</td>
+ *     <td>→ "class" IDENTIFIER "{" function* "}" ;</td>
  *   </tr>
  *   <tr>
  *     <td>funDecl</td>
@@ -147,10 +152,17 @@ class Parser {
    * declaration → varDecl | statement ;
    */
   def declaration(): ParserGrammar[Stmt] = {
-    case Token(FUN, _, _, _)::tail  => funDecl()(tail)
-    case Token(VAR, _, _, _)::tail  => varDecl()(tail)
-    case tokenList@_::_             => statement()(tokenList)
+    case Token(CLASS, _, _, _)::tail  => classDecl()(tail)
+    case Token(FUN, _, _, _)::tail    => funDecl()(tail)
+    case Token(VAR, _, _, _)::tail    => varDecl()(tail)
+    case tokenList@_::_               => statement()(tokenList)
   }
+
+  /**
+   * classDecl → "class" IDENTIFIER "{" function* "}" ;
+   */
+  def classDecl(): ParserGrammar[Stmt] =
+    parserClass(funDecl())
 
   /**
    * funDecl → "fun" IDENTIFIER "(" parameters? ")" block ;
