@@ -118,7 +118,7 @@ import util.Applicative.eitherApplicative
  *   </tr>
  *   <tr>
  *     <td>call</td>
- *     <td>→ primary ( "(" arguments? ")" )* ;</td>
+ *     <td>→ primary ( "(" arguments? ")" | "." IDENTIFIER )* ;</td>
  *   </tr>
  *   <tr>
  *     <td>arguments</td>
@@ -281,7 +281,7 @@ class Parser {
    * <table border="0">
    *   <tr>
    *     <td>call</td>
-   *     <td>→ primary ( "(" arguments? ")" )* ;</td>
+   *     <td>→ primary ( "(" arguments? ")"  | "." IDENTIFIER )* ;</td>
    *   </tr>
    *   <tr>
    *     <td>arguments</td>

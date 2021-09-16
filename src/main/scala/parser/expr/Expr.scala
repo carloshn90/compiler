@@ -18,3 +18,4 @@ case class Logical(left: Expr, token: Token, right: Expr) extends Expr
 case class Literal(value: Any) extends Expr
 case class Unary(token: Token, expr: Expr) extends Expr
 case class Variable(token: Token) extends Expr
+case class Get(expr: Expr, name: Token) extends Expr
