@@ -7,6 +7,7 @@ import interpreter.`class`.InterClass
 import interpreter.stmt.InterClass.interClass
 import interpreter.{Environment, Result}
 import lexer.{IDENTIFIER, Token}
+import parser.stmt.Function
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -20,7 +21,19 @@ class InterClassTest extends AnyFunSuite with Matchers {
     val resultEnv: Environment = interClass(className, List())(env)._2
 
     resultEnv.size shouldBe 1
-    resultEnv.get("className").map(klass => klass.isInstanceOf[InterClass]) shouldBe Right(true)
+    resultEnv.get("className").map(_.isInstanceOf[InterClass]) shouldBe Right(true)
+  }
+
+  test("Class interpreter define new class with a method, return environment with the new class") {
+
+    val className: Token = Token(IDENTIFIER, "className", 1, Some("className"))
+    val method: Function = Function(Token(IDENTIFIER, "method", 1, Some("method")), List(), List())
+    val env: Environment = new Environment()
+    val resultEnv: Environment = interClass(className, List(method))(env)._2
+
+    resultEnv.size shouldBe 1
+    resultEnv.get("className").map(_.isInstanceOf[InterClass]) shouldBe Right(true)
+    resultEnv.get("className").map(klass => klass.asInstanceOf[InterClass].getMethods.contains("method")) shouldBe Right(true)
   }
 
   test("Class interpreter define class that already exist, return error") {

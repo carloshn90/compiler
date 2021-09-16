@@ -1,7 +1,13 @@
 package org.compiler.example
 package interpreter.`class`
 
-class InterInstance(klass: InterClass) {
+import error.ErrorCompiler
+import lexer.Token
 
-  override def toString = s"InterInstance ${klass.getName}"
+class InterInstance(methods: Map[String, Any]) {
+
+  def get(token: Token): Either[ErrorCompiler, Any] = methods.get(token.lexeme) match {
+    case Some(value)  => Right(value)
+    case None         => Left(ErrorCompiler(token.line, s"Undefined property '${token.lexeme}'."))
+  }
 }

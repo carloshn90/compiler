@@ -2,6 +2,8 @@ package org.compiler.example
 package interpreter
 
 import error.ErrorCompiler
+import interpreter.function.Callable
+import lexer.Token
 
 import cats.implicits.catsSyntaxApply
 
@@ -58,6 +60,11 @@ object InterResult {
     val valueResult: InterResult[Any] = f(getValue(ra.value), getValue(rb.value))
     valueResult.map(value => InterpreterState(ra.printList ::: rb.printList, Some(value)))
   })
+
+  def define(token: Token, callable: Callable): InterResult[Result] = env => env.define(token, callable) match {
+    case Right(environment) => (Right(InterpreterState(List(), None)), environment)
+    case Left(err)          => (Left(err), env)
+  }
 
   private def getValue(valueOption: Option[Any]): InterResult[Any] = valueOption match {
     case Some(value) => unit(Right(value))
