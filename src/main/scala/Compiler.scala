@@ -8,7 +8,7 @@ import parser.stmt.Stmt
 
 object Compiler extends App {
 
-  runFile("/Users/carlos/Documents/Scala/compilator/src/main/resources/main.cehn")
+  runFile("./src/main/resources/main.cehn")
 
   def runFile(source: String): Unit = {
 
