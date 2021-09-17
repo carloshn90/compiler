@@ -162,7 +162,7 @@ class Parser {
    * classDecl → "class" IDENTIFIER "{" function* "}" ;
    */
   def classDecl(): ParserGrammar[Stmt] =
-    parserClass(funDecl())
+    parserClass(expression(), funDecl())
 
   /**
    * funDecl → "fun" IDENTIFIER "(" parameters? ")" block ;
