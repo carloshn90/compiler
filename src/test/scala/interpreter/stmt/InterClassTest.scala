@@ -18,7 +18,7 @@ class InterClassTest extends AnyFunSuite with Matchers {
 
     val className: Token = Token(IDENTIFIER, "className", 1, Some("className"))
     val env: Environment = new Environment()
-    val resultEnv: Environment = interClass(className, List())(env)._2
+    val resultEnv: Environment = interClass(className, List(), List())(env)._2
 
     resultEnv.size shouldBe 1
     resultEnv.get("className").map(_.isInstanceOf[InterClass]) shouldBe Right(true)
@@ -29,7 +29,7 @@ class InterClassTest extends AnyFunSuite with Matchers {
     val className: Token = Token(IDENTIFIER, "className", 1, Some("className"))
     val method: Function = Function(Token(IDENTIFIER, "method", 1, Some("method")), List(), List())
     val env: Environment = new Environment()
-    val resultEnv: Environment = interClass(className, List(method))(env)._2
+    val resultEnv: Environment = interClass(className, List(), List(method))(env)._2
 
     resultEnv.size shouldBe 1
     resultEnv.get("className").map(_.isInstanceOf[InterClass]) shouldBe Right(true)
@@ -40,7 +40,7 @@ class InterClassTest extends AnyFunSuite with Matchers {
 
     val className: Token = Token(IDENTIFIER, "className", 1, Some("className"))
     val env: Environment = defineOrFail(new Environment(), className, "")
-    val (result: Either[ErrorCompiler, Result], resultEnv: Environment) = interClass(className, List())(env)
+    val (result: Either[ErrorCompiler, Result], resultEnv: Environment) = interClass(className, List(), List())(env)
 
     resultEnv.size shouldBe 1
     result shouldBe Left(ErrorCompiler(1, "Already a variable with the name: className in this scope."))

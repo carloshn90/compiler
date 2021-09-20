@@ -3,11 +3,13 @@ package interpreter.stmt
 
 import interpreter.InterResult.{InterResult, InterResultMonad}
 import interpreter.expr.InterExpr.evaluate
+import interpreter.{InterpreterState, Result}
 import parser.expr.Expr
 
 object InterPrint {
 
-  def interPrint(expr: Expr): InterResult[Option[String]] = evaluate(expr).map(e => e.value.map(stringify))
+  def interPrint(expr: Expr): InterResult[Result] = evaluate(expr)
+    .map(e => e.value.map(stringify).map(str => InterpreterState(e.printList :+ str, None)).getOrElse(e))
 
   private def stringify(value: Any): String = value match {
     case Nil|null          => "Nil"

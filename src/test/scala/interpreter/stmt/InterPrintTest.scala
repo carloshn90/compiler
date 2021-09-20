@@ -2,7 +2,7 @@ package org.compiler.example
 package interpreter.stmt
 
 import error.ErrorCompiler
-import interpreter.Environment
+import interpreter.{Environment, InterpreterState, Result}
 import interpreter.stmt.InterPrint.interPrint
 import parser.expr.{Expr, Literal}
 
@@ -16,9 +16,9 @@ class InterPrintTest extends AnyFunSuite with Matchers {
     val expr: Expr = Literal(Nil)
     val env: Environment = new Environment()
 
-    val result: Either[ErrorCompiler, Option[String]] = interPrint(expr)(env)._1
+    val result: Either[ErrorCompiler, Result] = interPrint(expr)(env)._1
 
-    result shouldBe Right(Some("Nil"))
+    result shouldBe Right(InterpreterState(List("Nil"), None))
   }
 
   test("Interpreting print value null, should return string 'Nil'") {
@@ -26,9 +26,9 @@ class InterPrintTest extends AnyFunSuite with Matchers {
     val expr: Expr = Literal(null)
     val env: Environment = new Environment()
 
-    val result: Either[ErrorCompiler, Option[String]] = interPrint(expr)(env)._1
+    val result: Either[ErrorCompiler, Result] = interPrint(expr)(env)._1
 
-    result shouldBe Right(Some("Nil"))
+    result shouldBe Right(InterpreterState(List("Nil"), None))
   }
 
   test("Interpreting print value double with decimal .0, should return string without decimal side") {
@@ -36,9 +36,9 @@ class InterPrintTest extends AnyFunSuite with Matchers {
     val expr: Expr = Literal(1.0)
     val env: Environment = new Environment()
 
-    val result: Either[ErrorCompiler, Option[String]] = interPrint(expr)(env)._1
+    val result: Either[ErrorCompiler, Result] = interPrint(expr)(env)._1
 
-    result shouldBe Right(Some("1"))
+    result shouldBe Right(InterpreterState(List("1"), None))
   }
 
   test("Interpreting print value double with decimals, should return string with decimal") {
@@ -46,9 +46,9 @@ class InterPrintTest extends AnyFunSuite with Matchers {
     val expr: Expr = Literal(3.14)
     val env: Environment = new Environment()
 
-    val result: Either[ErrorCompiler, Option[String]] = interPrint(expr)(env)._1
+    val result: Either[ErrorCompiler, Result] = interPrint(expr)(env)._1
 
-    result shouldBe Right(Some("3.14"))
+    result shouldBe Right(InterpreterState(List("3.14"), None))
   }
 
   test("Interpreting print other value, should return string with the value") {
@@ -56,8 +56,8 @@ class InterPrintTest extends AnyFunSuite with Matchers {
     val expr: Expr = Literal("nullable")
     val env: Environment = new Environment()
 
-    val result: Either[ErrorCompiler, Option[String]] = interPrint(expr)(env)._1
+    val result: Either[ErrorCompiler, Result] = interPrint(expr)(env)._1
 
-    result shouldBe Right(Some("nullable"))
+    result shouldBe Right(InterpreterState(List("nullable"), None))
   }
 }
