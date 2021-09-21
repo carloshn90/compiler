@@ -26,6 +26,7 @@ class Scanner(implicit keywords: Map[String, TokenType]) {
     case '+'::tail              => scanToken(tail, addNewToken(tokenList, PLUS))
     case ';'::tail              => scanToken(tail, addNewToken(tokenList, SEMICOLON))
     case '*'::tail              => scanToken(tail, addNewToken(tokenList, STAR))
+    case '%'::tail              => scanToken(tail, addNewToken(tokenList, MODULE))
     case '!'::'='::tail         => scanToken(tail, addNewToken(tokenList, BANG_EQUAL))
     case '!'::tail              => scanToken(tail, addNewToken(tokenList, BANG))
     case '='::'='::tail         => scanToken(tail, addNewToken(tokenList, EQUAL_EQUAL))

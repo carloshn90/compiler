@@ -4,7 +4,7 @@ package interpreter.expr
 import error.ErrorCompiler
 import interpreter.{Environment, InterpreterState, Result}
 import interpreter.expr.InterBinary.interBinary
-import lexer.{BANG_EQUAL, EQUAL_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL, MINUS, PLUS, SLASH, STAR, Token}
+import lexer.{BANG_EQUAL, EQUAL_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL, MINUS, MODULE, PLUS, SLASH, STAR, Token}
 import parser.expr.{Expr, Literal}
 
 import org.scalatest.funsuite.AnyFunSuite
@@ -23,6 +23,8 @@ class InterBinaryTest extends AnyFunSuite with Matchers {
     BinaryCase(6.0, Token(SLASH, "/", 0, None), 2.0, Right(3.0)),
     BinaryCase(3.0, Token(SLASH, "/", 0, None), 0.0, Right(Double.PositiveInfinity)),
     BinaryCase(6.0, Token(STAR, "*", 0, None), 2.0, Right(12.0)),
+    BinaryCase(2.0, Token(MODULE, "%", 0, None), 2.0, Right(0.0)),
+    BinaryCase(3.0, Token(MODULE, "%", 0, None), 2.0, Right(1.0)),
     BinaryCase(6.0, Token(MINUS, "-", 0, None), 2.0, Right(4.0)),
     BinaryCase(6.0, Token(GREATER, ">", 0, None), 2.0, Right(true)),
     BinaryCase(6.0, Token(GREATER, ">", 0, None), 6.0, Right(false)),

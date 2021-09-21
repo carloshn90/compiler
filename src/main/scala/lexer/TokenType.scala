@@ -79,6 +79,11 @@ case object SLASH extends TokenType {
   override def lexeme: String = "/"
 }
 
+case object MODULE extends TokenType {
+  override def name: String = "MODULE"
+  override def lexeme: String = "%"
+}
+
 case object STAR extends TokenType {
   override def name: String = "STAR"
   override def lexeme: String = "*"

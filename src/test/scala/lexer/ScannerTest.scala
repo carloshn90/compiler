@@ -22,6 +22,7 @@ class ScannerTest extends AnyFunSuite with Matchers {
     CorrectCase(List('+'), createTokenList(PLUS, "+", 1)),
     CorrectCase(List(';'), createTokenList(SEMICOLON, ";", 1)),
     CorrectCase(List('*'), createTokenList(STAR, "*", 1)),
+    CorrectCase(List('%'), createTokenList(MODULE, "%", 1)),
     CorrectCase(List('!','='), createTokenList(BANG_EQUAL, "!=", 1)),
     CorrectCase(List('!'), createTokenList(BANG, "!", 1)),
     CorrectCase(List('=','='), createTokenList(EQUAL_EQUAL, "==", 1)),

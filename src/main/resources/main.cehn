@@ -1,15 +1,27 @@
-fun makeCounter() {
-    var i = 0;
+class Server {
 
-    fun count() {
-       i = i + 1;
-       print i;
+    var serverId;
+
+    fun Server(id) {
+        serverId = id;
     }
 
-    return count;
+    fun start() {
+        return "Starting server number: " + serverId;
+    }
+
+    fun oddOrEven(until) {
+
+        for (var i = 0; i < until; i = 1 + i) {
+            if ((i % 2) == 0) {
+                print i + " is an even number";
+            } else {
+                print i + " is an odd number";
+            }
+        }
+    }
 }
 
-var counter = makeCounter();
-counter(); // 1.
-counter(); // 2.
-counter(); // 3.
+var server = Server(1.0);
+print server.start();
+server.oddOrEven(6);

@@ -6,7 +6,7 @@ import interpreter.InterResult.{InterResult, InterResultMonad, map2, unit}
 import interpreter.Result
 import interpreter.expr.InterExpr.evaluate
 import interpreter.util.Converter.convertToDouble
-import lexer.{BANG_EQUAL, EQUAL_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL, MINUS, PLUS, SLASH, STAR, Token}
+import lexer.{BANG_EQUAL, EQUAL_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL, MINUS, MODULE, PLUS, SLASH, STAR, Token}
 import parser.expr.Expr
 
 object InterBinary {
@@ -22,6 +22,7 @@ object InterBinary {
       case PLUS           => add(leftValue, rightValue)
       case SLASH          => executeOperation(leftValue, rightValue)(_ / _)
       case STAR           => executeOperation(leftValue, rightValue)(_ * _)
+      case MODULE         => executeOperation(leftValue, rightValue)(_ % _)
       case MINUS          => executeOperation(leftValue, rightValue)(_ - _)
       case GREATER        => executeLogic(leftValue, rightValue)(_ > _)
       case GREATER_EQUAL  => executeLogic(leftValue, rightValue)(_ >= _)

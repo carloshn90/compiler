@@ -110,7 +110,7 @@ import util.Applicative.eitherApplicative
  *   </tr>
  *   <tr>
  *     <td>factor</td>
- *     <td>→ unary ( ( "/" | "*" ) unary )* ;</td>
+ *     <td>→ unary ( ( "/" | "*" | "%") unary )* ;</td>
  *   </tr>
  *   <tr>
  *     <td>unary</td>
@@ -266,10 +266,10 @@ class Parser {
     parserBinary(factor(), Seq(MINUS, PLUS))(factor)
 
   /**
-   * factor → unary ( ( "/" | "*" ) unary )* ;
+   * factor → unary ( ( "/" | "*" | "%") unary )* ;
    */
   def factor(): ParserGrammar[Expr] =
-    parserBinary(unary(), Seq(SLASH, STAR))(unary)
+    parserBinary(unary(), Seq(SLASH, STAR, MODULE))(unary)
 
   /**
    * unary → ( "!" | "-" ) unary | call ;

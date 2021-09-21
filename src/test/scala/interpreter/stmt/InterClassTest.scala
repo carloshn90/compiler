@@ -7,7 +7,8 @@ import interpreter.`class`.InterClass
 import interpreter.stmt.InterClass.interClass
 import interpreter.{Environment, Result}
 import lexer.{IDENTIFIER, Token}
-import parser.stmt.Function
+import parser.expr.Literal
+import parser.stmt.{Function, Var}
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -18,6 +19,7 @@ class InterClassTest extends AnyFunSuite with Matchers {
 
     val className: Token = Token(IDENTIFIER, "className", 1, Some("className"))
     val env: Environment = new Environment()
+
     val resultEnv: Environment = interClass(className, List(), List())(env)._2
 
     resultEnv.size shouldBe 1
@@ -29,6 +31,7 @@ class InterClassTest extends AnyFunSuite with Matchers {
     val className: Token = Token(IDENTIFIER, "className", 1, Some("className"))
     val method: Function = Function(Token(IDENTIFIER, "method", 1, Some("method")), List(), List())
     val env: Environment = new Environment()
+
     val resultEnv: Environment = interClass(className, List(), List(method))(env)._2
 
     resultEnv.size shouldBe 1
@@ -36,10 +39,26 @@ class InterClassTest extends AnyFunSuite with Matchers {
     resultEnv.get("className").map(klass => klass.asInstanceOf[InterClass].getMethods.contains("method")) shouldBe Right(true)
   }
 
+  test("Class interpreter define constructor, return environment initialized with constructor values") {
+
+    val className: Token = Token(IDENTIFIER, "className", 1, Some("className"))
+    val classVar: Token = Token(IDENTIFIER, "classVar", 2, Some("classVar"))
+    val constructorVar: Var = Var(classVar, Literal("init"))
+    val constructor: Function = Function(Token(IDENTIFIER, "className", 1, Some("className")), List(), List(constructorVar))
+    val env: Environment = new Environment()
+
+    val resultEnv: Environment = interClass(className, List(constructorVar), List(constructor))(env)._2
+
+    resultEnv.size shouldBe 2
+    resultEnv.get("className").map(_.isInstanceOf[InterClass]) shouldBe Right(true)
+    resultEnv.get("classVar") shouldBe Right("init")
+  }
+
   test("Class interpreter define class that already exist, return error") {
 
     val className: Token = Token(IDENTIFIER, "className", 1, Some("className"))
     val env: Environment = defineOrFail(new Environment(), className, "")
+
     val (result: Either[ErrorCompiler, Result], resultEnv: Environment) = interClass(className, List(), List())(env)
 
     resultEnv.size shouldBe 1
