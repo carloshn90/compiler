@@ -4,7 +4,6 @@ package lexer
 object TokenType {
 
   def getKeywords: Map[String, TokenType] = Map(
-    "and"     -> AND,
     "class"   -> CLASS,
     "else"    -> ELSE,
     "false"   -> FALSE,
@@ -12,7 +11,6 @@ object TokenType {
     "fun"     -> FUN,
     "if"      -> IF,
     "nil"     -> NIL,
-    "or"      -> OR,
     "print"   -> PRINT,
     "return"  -> RETURN,
     "super"   -> SUPER,
