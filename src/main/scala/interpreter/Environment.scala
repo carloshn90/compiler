@@ -15,8 +15,6 @@ class Environment(values: List[Map[String, Any]] = List(Map())) {
 
   def size: Int = values.map(_.size).sum
 
-  def nestedSize: Int = values.size
-
   def define(token: Token, value: Any): Either[ErrorCompiler, Environment] = {
     if (values.head.contains(token.lexeme)) Left(ErrorCompiler(token.line, s"Already a variable with the name: ${token.lexeme} in this scope."))
     else {

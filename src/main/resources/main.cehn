@@ -1,3 +1,9 @@
+
+// function to calculate is a number is even
+fun isEven(value) {
+    return (value % 2) == 0;
+}
+
 class Server {
 
     var serverId;
@@ -13,7 +19,7 @@ class Server {
     fun oddOrEven(until) {
 
         for (var i = 0; i < until; i = 1 + i) {
-            if ((i % 2) == 0) {
+            if (isEven(i)) {
                 print i + " is an even number";
             } else {
                 print i + " is an odd number";

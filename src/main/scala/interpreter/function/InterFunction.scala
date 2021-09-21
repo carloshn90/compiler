@@ -21,12 +21,12 @@ class InterFunction(declaration: Function, closure: Environment) extends Callabl
       .foldRight(envWithClosure.createLocalEnv)((argParams, e: Environment) => defineValue(e, argParams._2, argParams._1))
 
     val (funResult, blockEnv) = interBlock(declaration.body)(envWithArguments)
-    (funResult, updateFunctionWithClosureEnv(funName.lexeme, envWithClosure.nestedSize, blockEnv).getOrElse(env))
+    (funResult, updateFunctionWithClosureEnv(funName.lexeme, blockEnv).getOrElse(env))
   }
 
-  private def updateFunctionWithClosureEnv(funName: String, closureSize: Int, blockEnv: Environment): Option[Environment] = {
-    val funClosureEnv = blockEnv.getClosure(closureSize)
-    val funEnv = blockEnv.restoreTo(closureSize)
+  private def updateFunctionWithClosureEnv(funName: String, blockEnv: Environment): Option[Environment] = {
+    val funClosureEnv = blockEnv.getClosure(2)
+    val funEnv = blockEnv.restoreTo(2)
     funEnv.assign(funName, new InterFunction(declaration, funClosureEnv))
   }
 

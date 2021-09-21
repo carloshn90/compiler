@@ -51,6 +51,49 @@ class InterFunctionTest extends AnyFunSuite with Matchers {
     result shouldBe Right(InterpreterState(List("1"), None))
   }
 
+  test("InterFunction with arguments should return clean environment") {
+
+    val funName: Token = Token(IDENTIFIER, "sum", 1, Some("sum"))
+    val param1: Token = Token(IDENTIFIER, "param1", 1, Some("param1"))
+    val param2: Token = Token(IDENTIFIER, "param2", 1, Some("param2"))
+    val params: List[Token] = List(param1, param2)
+    val body: List[Stmt] = List(
+      Expression(Assign(Token(IDENTIFIER, "a", 1, Some("a")), Literal(1))),
+      Print(Variable(Token(IDENTIFIER, "a", 1, Some("a")))),
+    )
+
+    val function: Function = Function(funName, params, body)
+    val interFunction: InterFunction = new InterFunction(function, new Environment())
+    val deepEnv: Environment = defineOrFail(defineOrFail(new Environment(), Token(IDENTIFIER, "a", 1, Some("a")), 0), Token(IDENTIFIER, "sum", 1, Some("sum")), interFunction)
+    val env: Environment = new Environment(List(Map[String, Any]()) ::: deepEnv.getValues)
+
+    val callParams: List[Result] = List(
+      InterpreterState(List(), Some(Literal("param1"))),
+      InterpreterState(List(), Some(Literal("param2")))
+    )
+    val resultEnv: Environment = interFunction.call(funName, callParams)(env)._2
+
+    resultEnv.getValues.length shouldBe 2
+  }
+
+  test("InterFunction without arguments should return clean environment") {
+
+    val funName: Token = Token(IDENTIFIER, "sum", 1, Some("sum"))
+    val body: List[Stmt] = List(
+      Expression(Assign(Token(IDENTIFIER, "a", 1, Some("a")), Literal(1))),
+      Print(Variable(Token(IDENTIFIER, "a", 1, Some("a")))),
+    )
+
+    val function: Function = Function(funName, List(), body)
+    val interFunction: InterFunction = new InterFunction(function, new Environment())
+    val deepEnv: Environment = defineOrFail(defineOrFail(new Environment(), Token(IDENTIFIER, "a", 1, Some("a")), 0), Token(IDENTIFIER, "sum", 1, Some("sum")), interFunction)
+    val env: Environment = new Environment(List(Map[String, Any]()) ::: deepEnv.getValues)
+
+    val resultEnv: Environment = interFunction.call(funName, List())(env)._2
+
+    resultEnv.getValues.length shouldBe 2
+  }
+
   test("Error in the body statement should return an error") {
 
     val funName: Token = Token(IDENTIFIER, "sum", 1, Some("sum"))
