@@ -13,8 +13,10 @@ import parser.stmt.{Function, Var}
 object InterClass {
 
   def interClass(name: Token, vars: List[Var], methods: List[Function]): InterResult[Result] = env => {
-    val interClass: InterClass = new InterClass(name.lexeme, defineMethods(methods, env))
-    defineClass(name, interClass, vars)(env)
+    addAllFunctionEnv(methods, env) match {
+      case Right(e)   => defineClass(name, new InterClass(name.lexeme, defineMethods(methods, e)), vars)(env)
+      case Left(err)  => unit(Left(err))(env)
+    }
   }
 
   private def defineVariables(vars: List[Var], env: Environment): Either[ErrorCompiler, Environment] = vars match {
@@ -34,5 +36,10 @@ object InterClass {
       case Right(varEnv) => define(name, interClass)(varEnv)
       case Left(err)     => unit(Left(err))(env)
     }
+  }
+
+  private def addAllFunctionEnv(methods: List[Function], env: Environment): Either[ErrorCompiler, Environment] = methods match {
+    case List() => Right(env)
+    case h::t   => env.define(h.name, new InterFunction(h, env)).flatMap(e => addAllFunctionEnv(t, e))
   }
 }

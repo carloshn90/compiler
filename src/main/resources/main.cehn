@@ -9,11 +9,12 @@ class Server {
     var serverId;
 
     fun Server(id) {
-        serverId = id;
+        serverId = ids;
     }
 
     fun start() {
-        return "Starting server number: " + serverId;
+        oddOrEven(3);
+        return createMessage();
     }
 
     fun oddOrEven(until) {
@@ -25,6 +26,10 @@ class Server {
                 print i + " is an odd number";
             }
         }
+    }
+
+    fun createMessage() {
+        return "Starting server number: " + serverId;
     }
 }
 
